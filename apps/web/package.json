@@ -11,7 +11,8 @@
     "typecheck": "void prepare && tsc --noEmit",
     "deploy": "void deploy",
     "db:generate": "void db generate",
-    "predev": "node scripts/ensure-env.mjs"
+    "db:migrate": "void db migrate",
+    "predev": "node scripts/ensure-env.mjs && void db migrate"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

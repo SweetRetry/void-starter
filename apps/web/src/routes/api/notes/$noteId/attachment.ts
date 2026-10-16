@@ -5,7 +5,7 @@ import { storage } from "void/storage"
 import { note } from "../../../../../db/schema"
 import { ATTACHMENT_MAX_BYTES, ATTACHMENT_TYPES } from "@/lib/note-input"
 import { ownNoteOrProblem, withProblems } from "@/server/api.server"
-import { ErrorCode, problemResponse } from "@/server/problem"
+import { problemResponse } from "@/server/problem"
 
 /**
  * One R2 attachment per note.
@@ -18,8 +18,7 @@ export const Route = createFileRoute("/api/notes/$noteId/attachment")({
         const row = await ownNoteOrProblem(request, params.noteId)
         if (row instanceof Response) return row
         const object = row.attachmentKey ? await storage.get(row.attachmentKey) : null
-        if (!object)
-          return problemResponse(request, ErrorCode.NOT_FOUND, "This note has no attachment.")
+        if (!object) return problemResponse(request, "NOT_FOUND", "This note has no attachment.")
 
         const headers = new Headers()
         object.writeHttpMetadata(headers)
@@ -42,24 +41,20 @@ export const Route = createFileRoute("/api/notes/$noteId/attachment")({
         if (!(ATTACHMENT_TYPES as readonly string[]).includes(type)) {
           return problemResponse(
             request,
-            ErrorCode.UNSUPPORTED_MEDIA_TYPE,
+            "UNSUPPORTED_MEDIA_TYPE",
             "Attach an image, a PDF, or a text or Markdown file."
           )
         }
         const declared = Number(request.headers.get("content-length") ?? Number.NaN)
         if (declared > ATTACHMENT_MAX_BYTES) {
-          return problemResponse(
-            request,
-            ErrorCode.PAYLOAD_TOO_LARGE,
-            "Attachments can be up to 10 MB."
-          )
+          return problemResponse(request, "PAYLOAD_TOO_LARGE", "Attachments can be up to 10 MB.")
         }
         // content-length can be absent or wrong, so the size that counts is what arrives.
         const file = await request.arrayBuffer()
         if (file.byteLength === 0 || file.byteLength > ATTACHMENT_MAX_BYTES) {
           return problemResponse(
             request,
-            file.byteLength === 0 ? ErrorCode.VALIDATION_ERROR : ErrorCode.PAYLOAD_TOO_LARGE,
+            file.byteLength === 0 ? "VALIDATION_ERROR" : "PAYLOAD_TOO_LARGE",
             file.byteLength === 0 ? "The file is empty." : "Attachments can be up to 10 MB."
           )
         }
