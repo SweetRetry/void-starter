@@ -39,7 +39,7 @@ pnpm connect
 ```sh
 pnpm connect   # once per clone: Cloudflare login
 # once per account: create the AI Gateway "void-starter" in the dashboard
-pnpm deploy
+pnpm run deploy
 ```
 
 `void deploy` builds the app, provisions D1, R2 and the AI binding, applies migrations and publishes the Worker. See [docs/deployment.md](docs/deployment.md) for AI Gateway, models, limits and rollback.

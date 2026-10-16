@@ -64,7 +64,7 @@ The schema lives in `apps/web/db/schema.ts`. Change it, then generate a migratio
 pnpm db:generate
 ```
 
-`pnpm dev` applies pending migrations to local D1 before it starts (`pnpm db:migrate` does it on demand). `pnpm deploy` applies them to production. Never edit the database by hand.
+`pnpm dev` applies pending migrations to local D1 before it starts (`pnpm db:migrate` does it on demand). `pnpm run deploy` applies them to production. Never edit the database by hand.
 
 ## Extension points
 

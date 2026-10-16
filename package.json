@@ -8,7 +8,7 @@
     "prepare": "lefthook install",
     "dev": "turbo dev --filter=web",
     "build": "turbo build",
-    "deploy": "pnpm --filter web deploy",
+    "deploy": "pnpm --filter web run deploy",
     "connect": "pnpm --filter web connect",
     "db:generate": "pnpm --filter web db:generate",
     "db:migrate": "pnpm --filter web db:migrate",
