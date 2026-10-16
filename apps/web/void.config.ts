@@ -9,8 +9,10 @@ export default defineConfig({
   },
   // Routes ai.provider().fetch() through AI Gateway. Workers AI calls pass the id per call.
   ai: { gateway: AI_GATEWAY_ID },
-  // Passed through to Wrangler: Workers Logs and Traces in the Cloudflare dashboard.
+  // Passed through to Wrangler. `name` is the Worker (and its workers.dev subdomain); change it
+  // for your app. `observability` turns on Workers Logs and Traces.
   cloudflare: {
+    name: "void-starter",
     observability: {
       enabled: true,
       logs: { enabled: true, invocation_logs: true },

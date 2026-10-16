@@ -40,6 +40,14 @@ export const Route = createFileRoute("/api/notes/$noteId/summary")({
               "AI isn't connected yet. Run `pnpm connect`, then restart `pnpm dev`."
             )
           }
+          // Workers AI refuses a gateway id the account hasn't created (AiGatewayError 2001).
+          if (error instanceof Error && error.message.includes("Please configure AI Gateway")) {
+            return problemResponse(
+              request,
+              "SERVICE_UNAVAILABLE",
+              `AI Gateway "${AI_GATEWAY_ID}" doesn't exist yet. Create it in the Cloudflare dashboard under AI › AI Gateway.`
+            )
+          }
           if (!(error instanceof UsageLimit)) throw error
           const retryAt = error.retryAt ? Date.parse(error.retryAt) : Number.NaN
           return problemResponse(request, "TOO_MANY_REQUESTS", "AI is busy. Try again shortly.", {

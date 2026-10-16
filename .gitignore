@@ -23,3 +23,7 @@ lefthook-local.yml
 .DS_Store
 *.pem
 npm-debug.log*
+
+# Void records your Cloudflare account and resources here. The template must not ship one;
+# in your own app, delete this line and commit the file.
+apps/web/void.lock.json
