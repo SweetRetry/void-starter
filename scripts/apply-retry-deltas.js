@@ -64,13 +64,20 @@ const deltas = {
     ],
   ],
   // Callers of the removed outline variant move to secondary.
-  "alert-dialog.tsx": [['variant = "outline",', 'variant = "secondary",']],
   "carousel.tsx": [['variant = "outline",', 'variant = "secondary",']],
   "dialog.tsx": [
     ['<Button variant="outline" />', '<Button variant="secondary" />'],
     // Dialog sits on bg-background over its overlay, rounded-lg, bordered.
     ["rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10", "rounded-lg border bg-background p-4 text-sm text-foreground"],
   ],
+  "alert-dialog.tsx": [
+    ['variant = "outline",', 'variant = "secondary",'],
+    ["rounded-xl bg-popover p-4 text-popover-foreground ring-1 ring-foreground/10", "rounded-lg border bg-background p-4 text-foreground"],
+  ],
+  "context-menu.tsx": [...floatingLayer, [" ring-1 ring-foreground/10", ""]],
+  "hover-card.tsx": [...floatingLayer, [" ring-1 ring-foreground/10", ""]],
+  "menubar.tsx": [...floatingLayer, [" ring-1 ring-foreground/10", ""]],
+  "navigation-menu.tsx": [...floatingLayer, [" ring-1 ring-foreground/10", ""]],
   "pagination.tsx": [['variant={isActive ? "outline" : "ghost"}', 'variant={isActive ? "secondary" : "ghost"}']],
   "card.tsx": [[" ring-1 ring-foreground/10", ""]],
   "input.tsx": [...filledField, [" disabled:bg-input/50", " disabled:bg-surface-1"], [" dark:disabled:bg-input/80", ""]],
