@@ -1,5 +1,4 @@
-/* Retry tokens and base styles live in retry.css, synced byte-for-byte from
-   SweetRetry/retry-design by scripts/sync-retry-design.js. Never edit retry.css by hand.
+/* Retry tokens and base styles live in retry.css (DESIGN.md is their spec).
    This file only adds what shadcn/ui needs on top and tells Tailwind where classes live. */
 @import "./retry.css";
 @import "tw-animate-css";

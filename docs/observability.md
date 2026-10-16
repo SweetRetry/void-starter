@@ -1,61 +1,56 @@
 # Observability
 
-信号边界与取舍见 [ADR 0002](adr/0002-opentelemetry-observability.md)，trace 契约见 [ADR 0006](adr/0006-trace-context-contract.md)，装配归属见 [ADR 0007](adr/0007-runtime-assembly-and-app-ownership.md)。本页是使用说明。
+The Worker's logs and traces are the record of what a request did. The `cf-ray` id ties a user's error report to that record: every `/api/*` error carries it as `instance: "urn:cf-ray:<id>"` ([api.md](api.md)).
 
-## 信号
+## Logging
 
-- **Traces**：OpenTelemetry。业务代码只依赖 API；SDK 由 `apps/server/src/observability.ts` 装配和关停。
-- **Logs**：Pino JSON stdout 是 application log 的事实来源，不启用 OpenTelemetry logs pipeline（`OTEL_LOGS_EXPORTER=none`）。
-- **Metrics**：未启用（`OTEL_METRICS_EXPORTER=none`）。
+- Log with `console.log`, `console.warn` and `console.error`. Workers Logs captures them and attaches them to the request's trace.
+- Name events with a short dotted key and put the data in an object: `console.error("api.failed", { path, error })`.
+- Log an `Error` as `{ name, message, stack }`. A raw `Error` serializes to `{}`.
+- Never log secrets, cookies, session tokens, passwords or full request bodies.
 
-日志默认以 JSON 写入 stdout；`LOG_LEVEL` 控制级别，本地需要可读输出时设置 `LOG_PRETTY=true`。
+## Local dev
 
-## trace 契约
+The Cloudflare Vite plugin records every request's spans and logs while `pnpm dev` runs. Browse them at <http://localhost:5173/cdn-cgi/local/explorer/>, or query them with SQL:
 
-| 内容 | 取值 | 真源 |
-| :--- | :--- | :--- |
-| 传播格式 | W3C Trace Context：`traceparent`、`tracestate` | `packages/tracing` |
-| 传播器 | Trace Context + Baggage，不随 `OTEL_PROPAGATORS` 变化 | `packages/tracing` |
-| HTTP response 暴露 | `traceparent`（服务端 span context），不返回 `tracestate` | `packages/tracing` |
-| 错误体 | RFC 9457 扩展成员 `traceId`，仅 `INTERNAL_SERVER_ERROR` 携带 | `packages/request/src/contract.ts` |
-| 日志关联字段 | `trace_id`、`span_id`、`trace_flags` | `packages/tracing` |
-| span 投影 | camelCase `traceId` / `spanId`（对齐 OTLP/JSON） | `packages/observability` |
-
-形状的校验与序列化委托给 `@opentelemetry/api` 与 `@opentelemetry/core`，项目内不自写正则。接收端接受大写 hex（OTel 语义），发送端固定小写。
-
-跨域调用方需要 `Access-Control-Expose-Headers` 才能读到 `traceparent`，server 已显式声明。
-
-## 本地查看 trace
-
-未设置 `OTEL_TRACES_EXPORTER` 的非生产环境下，span 以 JSONL 投影落盘到 `apps/server/data/traces.jsonl`（可用 `SWEET_KIT_TRACE_FILE` 覆盖）。
-
-从 HTTP response 的 `traceparent` 或 500 响应体的 `traceId` 取得 trace id 后按行检索：
-
-```bash
-jq -c --arg id <traceId> 'select(.traceId == $id)' apps/server/data/traces.jsonl
+```sh
+curl -s http://localhost:5173/cdn-cgi/local/explorer/api/local/observability/query \
+  -H 'content-type: application/json' \
+  -d '{"sql": "select trace_id, level, message from logs where level = '\''error'\'' order by ts_ms desc limit 5"}'
 ```
 
-每行一个 span projection，字段形状见 `AgentSpanRecord`（`packages/observability/src/agent-traces.ts`），camelCase 对齐 OTLP/JSON。trace id 全小写：发送端固定小写，检索前把输入归一成小写。
+Two tables hold the data:
 
-## 导出到 backend
+| Table   | Columns                                                                                                                    |
+| :------ | :------------------------------------------------------------------------------------------------------------------------- |
+| `spans` | `trace_id`, `span_id`, `parent_id`, `service`, `name`, `kind`, `start_ms`, `duration_ms`, `outcome`, `error`, `attributes` |
+| `logs`  | `trace_id`, `span_id`, `seq`, `ts_ms`, `level`, `message`, `operation`                                                     |
 
-生产使用标准 OTel 环境变量发送 OTLP：
+A request's root span has `parent_id` null. Join `logs` to `spans` on `trace_id` to see what one request logged:
 
-```bash
-NODE_ENV=production \
-OTEL_SERVICE_NAME=sweet-kit-server \
-OTEL_TRACES_EXPORTER=otlp \
-OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf \
-OTEL_EXPORTER_OTLP_ENDPOINT=https://collector.example.com \
-pnpm --filter server start
+```sql
+select s.name, s.duration_ms, l.level, l.message
+from spans s join logs l on l.trace_id = s.trace_id
+where s.parent_id is null and l.level = 'error'
+order by l.ts_ms desc limit 10;
 ```
 
-`OTEL_EXPORTER_OTLP_ENDPOINT` 是 base endpoint，不附加 `/v1/traces`。OTLP 只标准化 export，不标准化查询 API；trace 查询需要对接具体 backend。
+Local requests have no `cf-ray`, so local errors carry no `instance`. Find them by time or path instead.
 
-## Redaction
+## Production
 
-- log 的敏感字段排除列表在 `packages/logger`：按字段名逐层匹配（顶层、`*.password`、`*.*.accessToken` 等），`apiKey`、`credential`、`authorization`、`cookie` 与各类 token 都在表内；`gen_ai.usage.input_tokens` 这类计数指标不受影响。
-- span 投影在 `packages/observability` 上先按 key 语义判定：凭据类 key 整值替换，`token` 只有作为独立 key 段（`session.token`）才算凭据；`input_tokens`、`token_count` 是指标，保留原值。URL 的 query 与 fragment 被剔除，`url.query` 整值替换。
-- 两处都有回归测试：`packages/logger/test/redaction.test.ts` 与 `packages/observability/test/agent-traces.test.ts`。
+`void.config.ts` turns on Workers Logs and Traces through the Wrangler `observability` settings:
 
-URL query、认证信息、cookie、password、secret 与 api key 类数据不得进入持久化的 log 或 trace projection。新增字段若命中上述语义，先补测试再合入。
+```ts
+cloudflare: {
+  observability: {
+    enabled: true,
+    logs: { enabled: true, invocation_logs: true },
+    traces: { enabled: true },
+  },
+},
+```
+
+- **Dashboard.** Workers & Pages › your Worker › Observability shows logs and traces. Filter by the ray id from an error's `instance`.
+- **Live tail.** `pnpm --filter web exec void project logs` streams logs from the deployed Worker.
+- **AI.** AI Gateway's logs show each model call, with its latency, tokens and cache status.

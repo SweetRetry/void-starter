@@ -1,15 +1,16 @@
 /**
- * 冻结 packages/ui/src/components 的实现（F1）：范围内的文件内容必须与基线逐字节一致。
+ * Freezes packages/ui/src/components (F1): every file in scope must match the baseline byte for byte.
  *
- * 基线是「上一次被显式接受的状态」，**不保证等于上游最新版本**。两个问题分开回答：
- * 本脚本答「我们改过它没有」（离线、确定性、进 CI）；上游是否已变由升级时的
- * `shadcn diff <component>` 回答（联网、手动）。范围与解冻流程见 `AGENTS.md` › 架构约定。
+ * The baseline is the last explicitly accepted state, not necessarily upstream's latest. Two
+ * questions get separate answers. This script answers "did we change it?" (offline,
+ * deterministic, in CI). `shadcn diff <component>` answers "did upstream change?" (online,
+ * manual, at upgrade time). Scope and the unfreeze flow: AGENTS.md › Architecture.
  *
- * 用法：
- *   node scripts/ui-freeze.js            检查，偏离时退出码 1
- *   node scripts/ui-freeze.js --update   显式接受当前状态并重写基线
+ * Usage:
+ *   node scripts/ui-freeze.js            check; exit 1 on drift
+ *   node scripts/ui-freeze.js --update   accept the current state and rewrite the baseline
  *
- * 输出：一致时打印 ✓ 与受检文件数；偏离时按 M/A/D 逐文件列出并给出处置方式。
+ * Output: ✓ and the file count when clean; otherwise each file as M/A/D, with what to do.
  */
 
 import { execFileSync } from "node:child_process"
@@ -23,18 +24,18 @@ const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..")
 const MANIFEST = "packages/ui/frozen.manifest.json"
 
 const MANIFEST_COMMENT =
-  "F1 基线：scope 下的文件必须与基线逐字节一致。基线是上一次被显式接受的状态，不等价于上游最新版本；与上游的一致性由升级时的 shadcn diff 确认。改动须经 pnpm ui:freeze:update 显式接受，并单独提交说明是上游升级还是记录在案的增强。"
+  "F1 baseline: files in scope must match byte for byte. The baseline is the last explicitly accepted state, not necessarily upstream's latest; shadcn diff answers that at upgrade time. Accept a change with pnpm ui:freeze:update and commit it on its own, saying whether it is an upstream upgrade or a recorded unfreeze."
 
 function readManifest() {
   try {
     return JSON.parse(readFileSync(join(repositoryRoot, MANIFEST), "utf8"))
   } catch (error) {
-    console.error(`✗ 无法读取基线 ${MANIFEST}：${error.message}`)
+    console.error(`✗ Cannot read the baseline ${MANIFEST}: ${error.message}`)
     process.exit(1)
   }
 }
 
-/** 换行归一化，避免 CRLF 检出把冻结判定变成噪声。 */
+/** Normalize line endings so a CRLF checkout doesn't read as drift. */
 function hashFile(relativePath) {
   const content = readFileSync(join(repositoryRoot, relativePath), "utf8")
 
@@ -59,7 +60,7 @@ function currentHashes(scope) {
   const hashes = new Map()
 
   for (const file of listScopeFiles(scope)) {
-    // git ls-files --cached 仍会列出已从工作区删除的文件，删除交给 diff 报 D。
+    // git ls-files --cached still lists deleted files; the diff reports them as D.
     if (!existsSync(join(repositoryRoot, file))) {
       continue
     }
@@ -105,22 +106,24 @@ function writeManifest(hashes) {
 }
 
 function reportDrift(changes) {
-  const scopeLabel = readManifest().scope.join("、")
+  const scopeLabel = readManifest().scope.join(", ")
 
-  console.log(`✗ ${scopeLabel} 偏离冻结基线（F1）\n`)
+  console.log(`✗ ${scopeLabel} drifted from the F1 baseline\n`)
 
   for (const change of changes) {
     console.log(`  ${change.status} ${change.file}`)
   }
 
   console.log()
-  console.log("该范围是上游 shadcn/ui 实现，默认字节冻结。处置方式：")
-  console.log("  · 误改        git checkout -- <file>")
-  console.log("  · 上游升级    pnpm ui:freeze:update，提交信息写明「上游升级」")
-  console.log("  · 比对上游    shadcn diff <component>（联网、手动，本脚本不联网）")
-  console.log("  · 新增组件    shadcn add 后 pnpm ui:freeze:update，单独提交")
-  console.log("  · 新形态     默认落点是 recipe（packages/ui/src/recipes 或应用内），")
-  console.log("               不是改上游组件；确需改组件时，先确认该形态已被第二个应用独立需要。")
+  console.log("This scope is upstream shadcn/ui code and is byte-frozen. What to do:")
+  console.log("  · Accidental edit   git checkout -- <file>")
+  console.log('  · Upstream upgrade  pnpm ui:freeze:update; say "upstream upgrade" in the commit')
+  console.log(
+    "  · Compare upstream  shadcn diff <component> (online, manual; this script stays offline)"
+  )
+  console.log("  · New component     shadcn add, then pnpm ui:freeze:update in its own commit")
+  console.log("  · New look          belongs in a recipe (packages/ui/src/recipes or the app),")
+  console.log("                      not in the component, until a second app needs it too.")
 
   process.exitCode = 1
 }
@@ -131,7 +134,7 @@ function main() {
   const scope = manifest.scope
 
   if (!Array.isArray(scope) || scope.length === 0) {
-    console.error(`✗ ${MANIFEST} 缺少 scope，无法确定冻结范围`)
+    console.error(`✗ ${MANIFEST} has no scope, so there is nothing to freeze`)
     process.exit(1)
   }
 
@@ -142,25 +145,27 @@ function main() {
     const changes = diffFiles(recorded, current)
 
     if (changes.length === 0) {
-      console.log(`✓ 基线已是最新（${current.size} 个文件）`)
+      console.log(`✓ The baseline is already current (${current.size} files)`)
       return
     }
 
     writeManifest(current)
-    console.log(`✓ 已重写 ${MANIFEST}（${current.size} 个文件，${changes.length} 处变化）`)
+    console.log(`✓ Rewrote ${MANIFEST} (${current.size} files, ${changes.length} changes)`)
 
     for (const change of changes) {
       console.log(`  ${change.status} ${change.file}`)
     }
 
-    console.log("→ 本次解冻请单独提交，并在提交信息里说明是上游升级还是记录在案的增强。")
+    console.log(
+      "→ Commit this on its own and say whether it is an upstream upgrade or a recorded unfreeze."
+    )
     return
   }
 
   const changes = diffFiles(new Map(Object.entries(manifest.files ?? {})), current)
 
   if (changes.length === 0) {
-    console.log(`✓ ${scope.join("、")} 与冻结基线一致（${current.size} 个文件）`)
+    console.log(`✓ ${scope.join(", ")} matches the F1 baseline (${current.size} files)`)
     return
   }
 

@@ -31,7 +31,7 @@ function main() {
   const allFindings = []
 
   for (const file of files) {
-    // git ls-files --cached 仍会列出已从工作区删除的文件；删除由 git status 呈现，这里只扫存在的内容。
+    // git ls-files --cached still lists files deleted from the work tree; scan only what exists.
     if (!existsSync(join(repositoryRoot, file))) {
       continue
     }

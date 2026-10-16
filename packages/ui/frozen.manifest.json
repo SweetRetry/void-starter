@@ -1,5 +1,5 @@
 {
-  "$comment": "F1 基线：scope 下的文件必须与基线逐字节一致。基线是上一次被显式接受的状态，不等价于上游最新版本；与上游的一致性由升级时的 shadcn diff 确认。改动须经 pnpm ui:freeze:update 显式接受，并单独提交说明是上游升级还是记录在案的增强。",
+  "$comment": "F1 baseline: files in scope must match byte for byte. The baseline is the last explicitly accepted state, not necessarily upstream's latest; shadcn diff answers that at upgrade time. Accept a change with pnpm ui:freeze:update and commit it on its own, saying whether it is an upstream upgrade or a recorded unfreeze.",
   "scope": [
     "packages/ui/src/components"
   ],
