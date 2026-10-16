@@ -2,7 +2,7 @@ import { motion, useReducedMotion } from "motion/react"
 import type { HTMLMotionProps } from "motion/react"
 import type { CSSProperties } from "react"
 
-import { EASE_OUT } from "@/lib/ease"
+import { EASE } from "@/lib/ease"
 import { cn } from "@workspace/ui/lib/utils"
 
 export interface AgentDisclosureProps extends Omit<HTMLMotionProps<"div">, "animate" | "initial"> {
@@ -39,7 +39,7 @@ export function AgentDisclosure({
       transition={
         transition ?? {
           duration: reduce ? 0 : open ? 0.22 : 0.14,
-          ease: EASE_OUT,
+          ease: EASE,
         }
       }
       // The reveal clips, and a clip has no room around it for a ring: a full-bleed child

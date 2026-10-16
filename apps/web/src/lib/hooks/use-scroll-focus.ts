@@ -3,31 +3,10 @@ import type { MotionValue } from "motion/react"
 import { useEffect, useRef } from "react"
 import type { RefObject } from "react"
 
-export interface ScrollFocusOptions {
-  /**
-   * Where the reading line sits inside the viewport: `0` is the start edge, `0.5`
-   * the centre, `1` the end edge. Ignored by `useScrollProgress`, which measures
-   * the whole scrolled distance instead of a line.
-   */
-  offset?: number
-  /** Scroll axis. Rails are vertical by default. */
-  axis?: "x" | "y"
-}
+/** Where the reading line sits inside the viewport: halfway down. */
+const READING_LINE = 0.5
 
 type Reader = (container: HTMLElement) => number
-
-const readScroll = (container: HTMLElement, axis: "x" | "y") =>
-  axis === "y" ? container.scrollTop : container.scrollLeft
-
-const readScrollable = (container: HTMLElement, axis: "x" | "y") =>
-  axis === "y" ? container.scrollHeight : container.scrollWidth
-
-const readViewport = (container: HTMLElement, axis: "x" | "y") =>
-  axis === "y" ? container.clientHeight : container.clientWidth
-
-const readStart = (rect: DOMRect, axis: "x" | "y") => (axis === "y" ? rect.top : rect.left)
-
-const readSize = (rect: DOMRect, axis: "x" | "y") => (axis === "y" ? rect.height : rect.width)
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
 
@@ -95,51 +74,27 @@ const useScrollReader = (
 }
 
 /**
- * Focus from scroll progress — the article case. The result is already expressed
- * in tick indices, so the rail only has to draw it.
- */
-export const useScrollProgress = (
-  containerRef: RefObject<HTMLElement | null>,
-  { count, axis = "y" }: ScrollFocusOptions & { count: number }
-): MotionValue<number> => {
-  const last = Math.max(0, count - 1)
-
-  const read = (container: HTMLElement) => {
-    const distance = readScrollable(container, axis) - readViewport(container, axis)
-    if (distance <= 0) {
-      // Nothing to scroll: park the focus in the middle rather than on the first
-      // tick, which would read as "you have not started yet".
-      return last / 2
-    }
-    return clamp((readScroll(container, axis) / distance) * last, 0, last)
-  }
-
-  return useScrollReader(containerRef, read)
-}
-
-/**
  * Focus from the item sitting on the reading line — the transcript case. Focus is
  * interpolated between the centres of neighbouring items, so the peak glides with
  * the reading line instead of stepping from tick to tick.
  */
 export const useMessageFocus = (
   containerRef: RefObject<HTMLElement | null>,
-  itemRefs: RefObject<readonly (HTMLElement | null)[]>,
-  { offset = 0.5, axis = "y" }: ScrollFocusOptions = {}
+  itemRefs: RefObject<readonly (HTMLElement | null)[]>
 ): MotionValue<number> => {
   const read = (container: HTMLElement) => {
     const items = itemRefs.current ?? []
-    const scrolled = readScroll(container, axis)
-    const viewportSize = readViewport(container, axis)
-    const line = scrolled + viewportSize * offset
-    const origin = readStart(container.getBoundingClientRect(), axis) - scrolled
+    const scrolled = container.scrollTop
+    const viewportSize = container.clientHeight
+    const line = scrolled + viewportSize * READING_LINE
+    const origin = container.getBoundingClientRect().top - scrolled
 
     // The reading line can never reach the centre of an item that sits closer to the
     // end of the content than half a viewport, so the two ends of the scroll are
     // anchors of their own. Without them the first and last ticks would be
     // unreachable and the rail would never quite fill.
-    const range = Math.max(0, readScrollable(container, axis) - viewportSize)
-    const lineMin = viewportSize * offset
+    const range = Math.max(0, container.scrollHeight - viewportSize)
+    const lineMin = viewportSize * READING_LINE
     const lineMax = range + lineMin
 
     const points: { index: number; line: number }[] = []
@@ -151,7 +106,7 @@ export const useMessageFocus = (
         continue
       }
       const rect = item.getBoundingClientRect()
-      const center = readStart(rect, axis) - origin + readSize(rect, axis) / 2
+      const center = rect.top - origin + rect.height / 2
       if (first === -1) {
         first = index
       }

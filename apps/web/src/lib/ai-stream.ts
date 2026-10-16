@@ -98,3 +98,24 @@ export function createAiStreamParser() {
     },
   }
 }
+
+/**
+ * Every event of an `ai.stream()` body, in order, including one left unterminated at the end.
+ * It reads through `getReader()`, since not every browser iterates a stream with `for await`.
+ * A caller that stops early cancels the body, so a `tee()` branch stops buffering.
+ */
+export async function* readAiStream(body: ReadableStream<Uint8Array>) {
+  const parser = createAiStreamParser()
+  const decoder = new TextDecoder()
+  const reader = body.getReader()
+  try {
+    for (;;) {
+      const { done, value } = await reader.read()
+      if (done) break
+      yield* parser.push(decoder.decode(value, { stream: true }))
+    }
+    yield* parser.end()
+  } finally {
+    await reader.cancel().catch(() => {})
+  }
+}

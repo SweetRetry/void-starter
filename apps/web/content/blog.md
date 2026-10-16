@@ -1,20 +1,46 @@
-# Shipping a chat app on Cloudflare with Void
+# Void Starter
 
-Void turned D1, R2 and Workers AI into three imports and one deploy command. The app is a chat on TanStack Start, one Cloudflare Worker: messages in D1, files in R2, answers from free Workers AI models through AI Gateway. The platform part mostly disappeared. My time went to the seams between Void, the framework, the models and the tooling around them, and this post is a list of those seams.
+`void-starter` is a full-stack TypeScript starter on Void and TanStack Start. It deploys as a single Cloudflare Worker and ships a working AI chat application backed by D1, R2 and Workers AI through AI Gateway.
 
-Try it in the [playground](/chat). There are no accounts: a cookie with a random id keeps your chats in this browser, and nobody else can open them. Attach a PDF, an image or a text file, and the model reads it as Markdown.
+Alongside the app, the repository includes Tailwind CSS v4, shadcn/ui on Base UI, the Retry design system, Motif chat components, Oxlint (`@shadcn/lint`), Knip, `markdownlint-cli2` and Lefthook. Open the [playground](/chat) to try the chat app, or clone the repository to run it locally.
 
-## What Void does
+## Stack
 
-Void reads your imports and provisions what they need. Import `void/db` and the deploy creates a D1 database. Import `void/storage` and it creates an R2 bucket. Import `void/ai` and it binds Workers AI. Migrations under `db/migrations` are applied on deploy, and the Worker is published to your own account.
+- **Runtime**: TanStack Start on Void in framework mode, deployed as one Cloudflare Worker.
+- **Database**: Cloudflare D1 with Drizzle ORM and SQL migrations in `apps/web/db/migrations`.
+- **Storage**: Cloudflare R2 for chat attachments, converted to Markdown via `ai.toMarkdown()`.
+- **AI**: Free `@cf/*` Workers AI models streamed through Cloudflare AI Gateway, including reasoning models.
+- **Session**: An HttpOnly `visitor` cookie with a random UUID per browser.
+- **UI**: Tailwind CSS v4, Base UI shadcn components, Retry tokens and Motif chat blocks.
+- **Tooling**: Vite+ (`vp fmt`, `vp lint`, `vp test`), `@shadcn/lint`, Knip, `markdownlint-cli2` and Lefthook behind `pnpm verify`.
 
-| Import         | Cloudflare product | Used here for                                   |
-| :------------- | :----------------- | :---------------------------------------------- |
-| `void/db`      | D1                 | Chats, turns, reasoning and the text of files   |
-| `void/storage` | R2                 | The uploaded files themselves                   |
-| `void/ai`      | Workers AI         | Answers, and `toMarkdown()` for PDFs and images |
+## Workspace layout
 
-In framework mode it is one Vite plugin, and the order matters: `voidPlugin()` wraps Cloudflare's Vite plugin and must come before the framework.
+`void-starter` is a Turborepo + pnpm monorepo with one web app and two shared internal packages:
+
+```text
+void-starter/
+  apps/web/                     TanStack Start app, Drizzle schema, Void config
+  packages/ui/                  shadcn/ui (Base UI, byte-frozen) + Retry tokens
+  packages/typescript-config/   Shared TypeScript presets
+  rules/                        Zod v4 static check
+  scripts/                      F1 component freeze and UI guardrails
+  docs/                         Architecture, API contract, deploy and logs
+```
+
+`apps/web` holds the routes, server functions and API endpoints. `packages/ui` exports the shared component primitives and theme tokens.
+
+## Chat app architecture
+
+Void provisions Cloudflare bindings directly from module imports in `apps/web`:
+
+| Import         | Cloudflare binding | Role in `void-starter`                             |
+| :------------- | :----------------- | :------------------------------------------------- |
+| `void/db`      | D1                 | Chats, turns, model reasoning and parsed file text |
+| `void/storage` | R2                 | Uploaded attachment bytes under `chats/<id>/<id>`  |
+| `void/ai`      | Workers AI         | Streamed answers, thinking and `ai.toMarkdown()`   |
+
+In `apps/web/vite.config.ts`, `voidPlugin()` runs first ahead of `tanstackStart()`:
 
 ```ts
 export default defineConfig({
@@ -22,61 +48,55 @@ export default defineConfig({
 })
 ```
 
-## Where it got sharp
+### D1 and Drizzle
 
-### Workers AI has no local simulator
+`apps/web/db/schema.ts` defines three tables: `chat`, `message` and `attachment`. Opening `/c/:chatId` runs a TanStack Start server function (`createServerFn`) that loads the visitor's sidebar sessions and the chat's saved turns from D1. `*.server.ts` modules stay on the server bundle.
 
-D1 and R2 run locally. Workers AI doesn't. Until the clone is connected with `void connect --platform cloudflare`, every call fails with `ai: Not available`, so the app turns that into a `503` that says what to run. Dev calls spend the real account's allowance.
+### R2 attachments
 
-### AI Gateway is set per call
+`POST /api/chats/:chatId/messages` accepts multipart uploads, writes raw file bytes to R2 under `chats/<chatId>/<attachmentId>`, extracts Markdown with `ai.toMarkdown()`, and saves the extracted text on the `attachment` row in D1.
 
-`ai: { gateway }` in `void.config.ts` only applies to provider calls through `ai.provider().fetch()`. Workers AI models need the gateway on every call:
+### Workers AI stream
+
+`POST /api/chats/:chatId/answer` streams tokens from `@cf/*` models through AI Gateway. Reasoning models stream `reasoning_content` ahead of the answer text; the Worker forwards both streams to the browser and writes the completed turn to D1.
+
+### RFC 9457 errors
+
+Every `/api/*` error returns `application/problem+json` with a machine-readable `code` field and the Cloudflare `cf-ray` request ID in `instance`.
+
+## Cloudflare details
+
+### Remote AI in dev
+
+D1 and R2 run locally in Miniflare. Workers AI runs on Cloudflare's network and requires `pnpm connect` (`void connect --platform cloudflare`). Before connecting, model calls return a `503` Problem naming the command to run.
+
+### AI Gateway
+
+Direct Workers AI calls pass the gateway ID on each request:
 
 ```ts
 await ai.stream(model, { messages, max_tokens: 2048 }, { gateway: { id: "void-starter" } })
 ```
 
-The gateway must also exist first. Workers AI rejects an unknown id with error 2001, "Please configure AI Gateway in the Cloudflare dashboard".
+The `void-starter` gateway must exist in the Cloudflare dashboard before calling a model; otherwise Workers AI returns error `2001`.
 
-### Models don't agree on a stream
+### Stream parser
 
-`ai.stream()` hands back each model's own SSE. Llama sends `{"response": "..."}`. Qwen3 and gpt-oss send OpenAI-style `choices[0].delta`, with their thinking in `reasoning_content`. Qwen3 also repeats its text in a `response` field that lags behind the delta, so reading both doubles the answer. QwQ sent some digits as JSON numbers, and a parser that only accepts strings silently turns "51" into "". One parser now reads every shape, and its tests pin each case.
+Workers AI models return different SSE formats: Llama sends `{"response": "..."}`, Qwen3 and `gpt-oss` send OpenAI-style `choices[0].delta` chunks (with Qwen3 also repeating lagging text in `response`), and QwQ emits numeric tokens as JSON numbers. `apps/web/src/lib/ai-stream.ts` normalizes all formats into `{ type: "reasoning" | "text", text }`.
 
-Not every model is open to every account either. `@cf/google/gemma-3-12b-it` answered `403` on mine, so the picker lists only models I tried.
+### Deploy and latency
 
-### Migrations run on purpose
+Deployment runs through `pnpm run deploy` (`pnpm deploy` is reserved by pnpm). `apps/web/void.config.ts` sets `workers_dev: true` for preview readiness checks.
 
-The dev server doesn't apply migrations. `void db migrate` does, so `pnpm dev` runs it first. When I rewrote the migration history before the first deploy, local D1 refused to migrate until `void db reset` rebuilt it.
+Measured response times in dev through AI Gateway:
 
-### Auth is yours in framework mode
+| Scenario                        | Model         |   Time |
+| :------------------------------ | :------------ | -----: |
+| Single-sentence answer          | Llama 3.3 70B |  5.1 s |
+| Two attachments with reasoning  | Qwen3 30B     | 26.3 s |
+| Short summary (109 in / 42 out) | Llama 3.3 70B |  1.7 s |
 
-`void/auth` doesn't run with TanStack Start yet. Better Auth works on D1 with its Drizzle adapter at `transaction: false`, since D1 has no interactive transactions. I wired it, then took it out: a starter people fork should carry what every fork keeps.
-
-### Tools load the app's Vite config
-
-In a monorepo, Vitest projects and knip load `apps/web/vite.config.ts` from the workspace root, and `voidPlugin()` then scaffolds `.void/` at the root. The app now has its own `vitest.config.ts` without the plugin, and knip skips the Vite config.
-
-### `pnpm deploy` is taken
-
-pnpm has its own `deploy` command, so a script named `deploy` only runs through `pnpm run deploy`. The error is `ERR_PNPM_CANNOT_DEPLOY_MANY`, which says nothing about scripts.
-
-### The first deploy left workers.dev off
-
-The first deploy went live, but its `workers.dev` route answered Cloudflare error 1042, and the next deploys failed Void's readiness check because the new version had no preview URL. `workers_dev: true` in the `cloudflare` block, plus turning on workers.dev and Preview URLs once in the dashboard, gets out of that loop.
-
-## Numbers
-
-Measured in dev on one account, through the gateway:
-
-| Request                                | Model         |   Time |
-| :------------------------------------- | :------------ | -----: |
-| One-sentence answer                    | Llama 3.3 70B |  5.1 s |
-| Two files, with reasoning              | Qwen3 30B     | 26.3 s |
-| Note summary, 109 in and 42 out tokens | Llama 3.3 70B |  1.7 s |
-
-The Qwen3 answer spent 25 s thinking before its first word.
-
-## Run it
+## Quick start
 
 ```sh
 pnpm dlx giget gh:SweetRetry/void-starter my-app
@@ -86,4 +106,4 @@ pnpm install
 pnpm dev
 ```
 
-Answers need `pnpm connect` once and an AI Gateway named `void-starter`. `pnpm run deploy` ships the rest.
+Run `pnpm connect` once and create the `void-starter` AI Gateway in the Cloudflare dashboard to enable model responses. Run `pnpm run deploy` to deploy the Worker, migrations and bindings.

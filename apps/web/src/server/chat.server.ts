@@ -1,12 +1,12 @@
 import { waitUntil } from "cloudflare:workers"
 import { ai } from "void/ai"
-import { and, asc, db, desc, eq } from "void/db"
+import { and, asc, db, desc, eq, gt } from "void/db"
 import { UsageLimit } from "void/limits"
 import { storage } from "void/storage"
 
 import { attachment, chat, message } from "../../db/schema"
-import { createAiStreamParser } from "@/lib/ai-stream"
-import { fileUrl, type Session, type Turn } from "@/lib/chat"
+import { readAiStream } from "@/lib/ai-stream"
+import { chatPaths, isPreviewableImage, type Session, type Turn } from "@/lib/chat"
 import { AI_GATEWAY_ID, FILE_TEXT_CHARS, HISTORY_TURNS, SYSTEM_PROMPT } from "./ai"
 import { problemResponse } from "./problem"
 
@@ -14,6 +14,23 @@ import { problemResponse } from "./problem"
 export async function chatAccess(chatId: string, visitor: string) {
   const [row] = await db.select({ visitorId: chat.visitorId }).from(chat).where(eq(chat.id, chatId))
   return !row ? "new" : row.visitorId === visitor ? "own" : "other"
+}
+
+/** The newest `limit` messages of a chat, newest first. */
+function recentMessages(chatId: string, limit: number) {
+  return db
+    .select()
+    .from(message)
+    .where(eq(message.chatId, chatId))
+    .orderBy(desc(message.createdAt))
+    .limit(limit)
+}
+
+/** Rows that belong to a message, grouped by its id. */
+function byMessage<Row extends { messageId: string }>(rows: Row[]) {
+  const groups = new Map<string, Row[]>()
+  for (const row of rows) groups.set(row.messageId, [...(groups.get(row.messageId) ?? []), row])
+  return groups
 }
 
 /** The visitor's chats, most recently used first. */
@@ -43,8 +60,9 @@ export async function loadChat(chatId: string): Promise<{ turns: Turn[]; model?:
       .from(attachment)
       .where(eq(attachment.chatId, chatId)),
   ])
+  const filesOf = byMessage(files)
   const turns = messages.map((row): Turn => {
-    const own = files.filter((file) => file.messageId === row.id)
+    const own = filesOf.get(row.id) ?? []
     return {
       id: row.id,
       from: row.role,
@@ -54,7 +72,7 @@ export async function loadChat(chatId: string): Promise<{ turns: Turn[]; model?:
         files: own.map((file) => ({
           id: file.id,
           name: file.name,
-          ...(file.type.startsWith("image/") && { src: fileUrl(chatId, file.id) }),
+          ...(isPreviewableImage(file.type) && { src: chatPaths.file(chatId, file.id) }),
         })),
       }),
     }
@@ -122,40 +140,34 @@ export async function saveUserTurn(
 
 /** Remove the answers after the last user turn, so a regenerate starts from that turn. */
 export async function dropTrailingAnswers(chatId: string): Promise<boolean> {
-  const recent = await db
-    .select({ id: message.id, role: message.role })
+  const [lastUser] = await db
+    .select({ createdAt: message.createdAt })
     .from(message)
-    .where(eq(message.chatId, chatId))
+    .where(and(eq(message.chatId, chatId), eq(message.role, "user")))
     .orderBy(desc(message.createdAt))
-    .limit(HISTORY_TURNS)
-  const lastUser = recent.findIndex((row) => row.role === "user")
-  if (lastUser === -1) return false
-  for (const row of recent.slice(0, lastUser))
-    await db.delete(message).where(eq(message.id, row.id))
+    .limit(1)
+  if (!lastUser) return false
+  await db
+    .delete(message)
+    .where(and(eq(message.chatId, chatId), gt(message.createdAt, lastUser.createdAt)))
   return true
 }
 
 async function promptFor(chatId: string) {
   const [recent, files] = await Promise.all([
-    db
-      .select()
-      .from(message)
-      .where(eq(message.chatId, chatId))
-      .orderBy(desc(message.createdAt))
-      .limit(HISTORY_TURNS),
+    recentMessages(chatId, HISTORY_TURNS),
     db
       .select({ messageId: attachment.messageId, name: attachment.name, text: attachment.text })
       .from(attachment)
       .where(eq(attachment.chatId, chatId)),
   ])
+  const filesOf = byMessage(files)
   const turns = recent.reverse().map((row) => {
-    const attached = files
-      .filter((file) => file.messageId === row.id)
-      .map((file) =>
-        file.text === null
-          ? `<file name="${file.name}">This file could not be read.</file>`
-          : `<file name="${file.name}">\n${file.text.slice(0, FILE_TEXT_CHARS)}\n</file>`
-      )
+    const attached = (filesOf.get(row.id) ?? []).map((file) =>
+      file.text === null
+        ? `<file name="${file.name}">This file could not be read.</file>`
+        : `<file name="${file.name}">\n${file.text.slice(0, FILE_TEXT_CHARS)}\n</file>`
+    )
     return {
       role: row.role,
       content: [row.content, ...attached].filter(Boolean).join("\n\n"),
@@ -182,35 +194,40 @@ export async function streamAnswer(request: Request, chatId: string, model: stri
       { gateway: { id: AI_GATEWAY_ID } }
     )
   } catch (error) {
-    // Void binds Workers AI only once the clone is connected to Cloudflare.
-    if (error instanceof Error && error.message.startsWith("ai: Not available")) {
-      return problemResponse(
-        request,
-        "SERVICE_UNAVAILABLE",
-        "AI isn't connected yet. Run `pnpm connect`, then restart `pnpm dev`."
-      )
-    }
-    // Workers AI refuses a gateway id the account hasn't created (AiGatewayError 2001).
-    if (error instanceof Error && error.message.includes("Please configure AI Gateway")) {
-      return problemResponse(
-        request,
-        "SERVICE_UNAVAILABLE",
-        `AI Gateway "${AI_GATEWAY_ID}" doesn't exist yet. Create it in the Cloudflare dashboard under AI › AI Gateway.`
-      )
-    }
-    if (!(error instanceof UsageLimit)) throw error
-    const retryAt = error.retryAt ? Date.parse(error.retryAt) : Number.NaN
-    return problemResponse(request, "TOO_MANY_REQUESTS", "AI is busy. Try again shortly.", {
-      ...(Number.isFinite(retryAt) && {
-        headers: { "retry-after": String(Math.max(1, Math.ceil((retryAt - Date.now()) / 1000))) },
-        extensions: { retryAt: error.retryAt },
-      }),
-    })
+    return aiProblem(request, error)
   }
 
   const [toBrowser, toSave] = stream.body!.tee()
   waitUntil(saveAnswer(chatId, model, lastId, toSave))
   return new Response(toBrowser, { headers: stream.headers })
+}
+
+/** The problem response for a known way `ai.stream()` refuses; anything else rethrows. */
+function aiProblem(request: Request, error: unknown): Response {
+  // Void binds Workers AI only once the clone is connected to Cloudflare.
+  if (error instanceof Error && error.message.startsWith("ai: Not available")) {
+    return problemResponse(
+      request,
+      "SERVICE_UNAVAILABLE",
+      "AI isn't connected yet. Run `pnpm connect`, then restart `pnpm dev`."
+    )
+  }
+  // Workers AI refuses a gateway id the account hasn't created (AiGatewayError 2001).
+  if (error instanceof Error && error.message.includes("Please configure AI Gateway")) {
+    return problemResponse(
+      request,
+      "SERVICE_UNAVAILABLE",
+      `AI Gateway "${AI_GATEWAY_ID}" doesn't exist yet. Create it in the Cloudflare dashboard under AI › AI Gateway.`
+    )
+  }
+  if (!(error instanceof UsageLimit)) throw error
+  const retryAt = error.retryAt ? Date.parse(error.retryAt) : Number.NaN
+  return problemResponse(request, "TOO_MANY_REQUESTS", "AI is busy. Try again shortly.", {
+    ...(Number.isFinite(retryAt) && {
+      headers: { "retry-after": String(Math.max(1, Math.ceil((retryAt - Date.now()) / 1000))) },
+      extensions: { retryAt: error.retryAt },
+    }),
+  })
 }
 
 async function saveAnswer(
@@ -219,32 +236,19 @@ async function saveAnswer(
   after: string | undefined,
   body: ReadableStream<Uint8Array>
 ) {
-  const parser = createAiStreamParser()
-  const decoder = new TextDecoder()
   let content = ""
   let reasoning = ""
   let finished = false
-  const take = (events: ReturnType<typeof parser.push>) => {
-    for (const event of events) {
-      if (event.type === "delta") content += event.text
-      else if (event.type === "reasoning") reasoning += event.text
-      else if (event.type === "done") finished = true
-      else return false // limit or error: nothing worth saving
-    }
-    return true
+  for await (const event of readAiStream(body)) {
+    if (event.type === "delta") content += event.text
+    else if (event.type === "reasoning") reasoning += event.text
+    else if (event.type === "done") finished = true
+    else return // limit or error: nothing worth saving
   }
-  for await (const chunk of body) {
-    if (!take(parser.push(decoder.decode(chunk, { stream: true })))) return
-  }
-  if (!take(parser.end()) || !finished || !content.trim()) return
+  if (!finished || !content.trim()) return
 
   // A regenerate or a newer message may have moved the thread on while this one streamed.
-  const [latest] = await db
-    .select({ id: message.id })
-    .from(message)
-    .where(eq(message.chatId, chatId))
-    .orderBy(desc(message.createdAt))
-    .limit(1)
+  const [latest] = await recentMessages(chatId, 1)
   if (latest?.id !== after) return
 
   await db.insert(message).values({

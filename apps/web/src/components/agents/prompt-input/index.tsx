@@ -10,26 +10,13 @@ import type { PromptInputProps } from "./types"
 export {
   PromptInputAttach,
   PromptInputAttachment,
-  PromptInputButton,
   PromptInputFooter,
   PromptInputHeader,
   PromptInputSubmit,
   PromptInputTextarea,
 } from "./parts"
 export { ModelPicker } from "./model-picker"
-// Re-exported so a composer that hands its own model list over does not have to reach
-// for a second import path to draw the marks on it.
-export { PROVIDER_NAMES, ProviderMark } from "@/components/ui/provider-mark"
-export type {
-  ModelPickerProps,
-  PromptAttachment,
-  PromptInputAttachProps,
-  PromptInputButtonProps,
-  PromptInputProps,
-  PromptInputTextareaProps,
-  PromptModel,
-} from "./types"
-export type { ProviderId, ProviderMarkProps } from "@/components/ui/provider-mark"
+export type { PromptAttachment, PromptInputProps } from "./types"
 
 /* -- The composer --------------------------------------------------------------
  * Everything an agent surface asks for passes through one box, so the box is mostly the

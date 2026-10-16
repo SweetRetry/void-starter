@@ -28,3 +28,14 @@ export function headingsOf(markdown: string): Heading[] {
   }
   return headings
 }
+
+/** Estimated reading time in whole minutes across Latin words and CJK characters. */
+export function readingMinutes(markdown: string): number {
+  const cjk =
+    markdown.match(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/gu)?.length ?? 0
+  const latin =
+    markdown
+      .replace(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/gu, " ")
+      .match(/[\p{Letter}\p{Number}]+/gu)?.length ?? 0
+  return Math.max(1, Math.round(latin / 200 + cjk / 350))
+}

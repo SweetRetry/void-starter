@@ -58,12 +58,12 @@ export const ModelPicker = ({
           <button
             aria-label={`Model: ${active.name}`}
             className={cn(
-              "flex h-10 max-w-52 shrink-0 cursor-pointer items-center gap-2 rounded-full pr-2 pl-2.5 outline-none transition-colors duration-150 ease-out hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring data-popup-open:bg-accent",
+              "flex h-10 max-w-52 shrink-0 cursor-pointer items-center gap-2 rounded-lg pr-2 pl-2.5 outline-none transition-colors duration-150 ease-out hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring data-popup-open:bg-accent",
               className
             )}
             type="button"
           >
-            <ProviderMark className="size-5 text-foreground" provider={active.provider} />
+            <ProviderMark provider={active.provider} />
             {/* The name is the part that changes, so it is the part that truncates. */}
             <span className="truncate text-sm text-muted-foreground">{active.name}</span>
             <ChevronDown className="size-4 shrink-0 text-muted-foreground/60" />
@@ -75,13 +75,12 @@ export const ModelPicker = ({
         <DropdownMenuRadioGroup onValueChange={pick} value={active.id}>
           {models.map((model) => (
             <DropdownMenuRadioItem
-              className="gap-2.5 py-2"
               // Base UI keeps a menu open after a radio pick unless told otherwise.
               closeOnClick
               key={model.id}
               value={model.id}
             >
-              <ProviderMark className="size-4.5 text-foreground" provider={model.provider} />
+              <ProviderMark className="size-4.5" provider={model.provider} />
               <span className="truncate">{model.name}</span>
               {/* The maker, on the far side, where it answers a question the name
                   alone leaves open: two vendors ship a model called `Pro`. */}

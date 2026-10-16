@@ -15,8 +15,19 @@ export default defineConfig(({ command }) => {
     plugins: [
       // voidPlugin wraps @cloudflare/vite-plugin and must come before tanstackStart.
       voidPlugin(),
-      // The blog post at `/` is static: prerendered to dist/client at build, served as an asset.
-      tanstackStart({ pages: [{ path: "/", prerender: { enabled: true, crawlLinks: false } }] }),
+      // The blog is static: `/` and every post it links to are prerendered to dist/client at
+      // build and served as assets. The chat app is dynamic, so the crawl stops at it. A post
+      // is written as `en/harness.html`, not `en/harness/index.html`, so its URL is served as
+      // is instead of redirecting to a trailing slash.
+      tanstackStart({
+        pages: [{ path: "/" }],
+        prerender: {
+          enabled: true,
+          autoSubfolderIndex: false,
+          crawlLinks: true,
+          filter: ({ path }) => !path.startsWith("/chat") && !path.startsWith("/c/"),
+        },
+      }),
       react(),
       tailwindcss(),
     ],

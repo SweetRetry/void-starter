@@ -12,7 +12,7 @@ import {
   X,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
-import type { ReactNode } from "react"
+import { createElement, type ReactNode } from "react"
 
 import { cn } from "@workspace/ui/lib/utils"
 
@@ -184,8 +184,6 @@ const AttachmentRing = ({ failed, percent }: { failed: boolean; percent: number 
 )
 
 const AttachmentGlyph = ({ children, name }: { children?: ReactNode; name: string }) => {
-  const Glyph = glyphFor(name)
-
   if (children) {
     return <span className="shrink-0 text-muted-foreground [&_svg]:size-[28.6cqw]">{children}</span>
   }
@@ -193,7 +191,10 @@ const AttachmentGlyph = ({ children, name }: { children?: ReactNode; name: strin
   return (
     // No tile behind the glyph — the icon stands on the card, at the full slot size.
     <span className="relative grid size-[28.6cqw] shrink-0 place-items-center">
-      <Glyph className="size-[28.6cqw] fill-card stroke-muted-foreground" strokeWidth="1.5" />
+      {createElement(glyphFor(name), {
+        className: "size-[28.6cqw] fill-card stroke-muted-foreground",
+        strokeWidth: "1.5",
+      })}
       {/* Card-coloured disc: it knocks the clip out of the page outline. */}
       <span className="absolute -bottom-[5.4cqw] -left-[7.1cqw] grid size-[17.9cqw] place-items-center rounded-full bg-card">
         <Paperclip className="size-[14.3cqw] stroke-muted-foreground" strokeWidth="2" />

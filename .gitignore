@@ -9,6 +9,7 @@ node_modules
 # Build and tool output
 dist
 coverage
+.verification
 .turbo
 .tanstack
 .void

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test"
 
-import { createAiStreamParser } from "../src/lib/ai-stream.ts"
+import { createAiStreamParser, readAiStream } from "../src/lib/ai-stream.ts"
 
 describe("createAiStreamParser", () => {
   it("joins Workers AI deltas split across chunks and ends on [DONE]", () => {
@@ -61,5 +61,45 @@ describe("createAiStreamParser", () => {
     const parser = createAiStreamParser()
     expect(parser.push("data: [DONE]")).toEqual([])
     expect(parser.end()).toEqual([{ type: "done" }])
+  })
+})
+
+describe("readAiStream", () => {
+  it("reads a byte stream split mid-frame and flushes a final frame without a blank line", async () => {
+    const bytes = new TextEncoder().encode(
+      'data: {"choices":[{"delta":{"reasoning_content":"Hm"}}]}\n\ndata: {"response":"Hi"}\n\ndata: [DONE]'
+    )
+    const body = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(bytes.slice(0, 20))
+        controller.enqueue(bytes.slice(20))
+        controller.close()
+      },
+    })
+    const events = []
+    for await (const event of readAiStream(body)) events.push(event)
+    expect(events).toEqual([
+      { type: "reasoning", text: "Hm" },
+      { type: "delta", text: "Hi" },
+      { type: "done" },
+    ])
+  })
+})
+
+describe("readAiStream early exit", () => {
+  it("cancels the body when the reader stops before the end", async () => {
+    let cancelled = false
+    const body = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode('event: void:error\ndata: {"message":"x"}\n\n'))
+      },
+      cancel() {
+        cancelled = true
+      },
+    })
+    for await (const event of readAiStream(body)) {
+      if (event.type === "error") break
+    }
+    expect(cancelled).toBe(true)
   })
 })

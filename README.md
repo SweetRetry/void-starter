@@ -52,7 +52,7 @@ packages/ui/         shadcn/ui components (byte-frozen) and Retry tokens
 packages/typescript-config/
 docs/                architecture, API, deployment, observability
 rules/               engineering rules with their gates
-scripts/             UI freeze, Retry sync and codemod
+scripts/             UI freeze and guardrails
 ```
 
 ## Checks

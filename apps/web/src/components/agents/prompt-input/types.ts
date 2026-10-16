@@ -2,7 +2,7 @@ import type { Button } from "@workspace/ui/components/button"
 import type { ComponentProps } from "react"
 
 import type { AttachmentProps } from "@/components/ui/attachment"
-import type { ProviderId } from "@/components/ui/provider-mark"
+import type { Model } from "@/lib/models"
 
 type ButtonProps = ComponentProps<typeof Button>
 
@@ -16,19 +16,11 @@ export type PromptAttachment = { id: string } & Omit<
   "className" | "icon" | "onRemove"
 >
 
-/** One model the composer can be pointed at. */
-export interface PromptModel {
-  /** What `value` and `onValueChange` trade in. */
-  id: string
-  name: string
-  provider: ProviderId
-}
-
 export interface ModelPickerProps {
   className?: string
   /** Model the picker opens on when it holds the choice itself. */
   defaultValue?: string
-  models: PromptModel[]
+  models: Model[]
   onValueChange?: (id: string) => void
   /** Controlled model id. */
   value?: string
