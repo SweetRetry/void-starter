@@ -42,7 +42,7 @@ function textOf(children: ReactNode): string {
 
 type Props<Tag extends "h1" | "h2" | "h3" | "p" | "a"> = ComponentProps<Tag> & { node?: unknown }
 
-/** Retry › Articles: text-lg in max-w-2xl, h1 text-4xl, h2 text-3xl, h3 text-xl. */
+/** Retry › Articles: text-lg, h1 text-4xl, h2 text-3xl, h3 text-xl. */
 const article = {
   h1: ({ node: _, ...props }: Props<"h1">) => (
     <h1 className="text-4xl font-semibold text-balance" {...props} />
@@ -73,8 +73,14 @@ function BlogPost() {
   return (
     <>
       <SiteHeader />
+      {/* The nav sits on the header's left edge; the post runs to the Playground button's. */}
       <div className="mx-auto flex max-w-5xl gap-16 px-4 py-12">
-        <main className="min-w-0 max-w-2xl flex-1 text-lg">
+        <aside className="hidden w-54 shrink-0 lg:block">
+          <div className="sticky top-24">
+            <Toc headings={headings} />
+          </div>
+        </aside>
+        <main className="min-w-0 flex-1 text-lg">
           <p className="mb-6 text-sm text-muted-foreground">Zimin · October 16, 2026</p>
           {/* Below lg the side column is gone, so the nav folds above the post. */}
           <details className="mb-8 rounded-xl bg-card p-4 lg:hidden">
@@ -87,11 +93,6 @@ function BlogPost() {
             {post}
           </Streamdown>
         </main>
-        <aside className="hidden w-54 shrink-0 lg:block">
-          <div className="sticky top-24">
-            <Toc headings={headings} />
-          </div>
-        </aside>
       </div>
     </>
   )
