@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1792155930929,
+      "tag": "20261016130530_pretty_terrax",
+      "breakpoints": true
+    }
+  ]
+}
