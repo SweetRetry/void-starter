@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "connect": "void connect --platform cloudflare",
     "dev": "vp dev",
     "build": "vp build",
     "preview": "vp preview",
@@ -14,9 +15,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
-    "@tanstack/react-query": "^5.104.3",
     "@tanstack/react-router": "^1.170.44",
-    "@tanstack/react-router-ssr-query": "^1.167.3",
     "@tanstack/react-start": "^1.169.2",
     "@workspace/ui": "workspace:*",
     "better-auth": "^1.7.10",

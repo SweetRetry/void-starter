@@ -8,6 +8,7 @@
     "dev": "turbo dev --filter=web",
     "build": "turbo build",
     "deploy": "pnpm --filter web deploy",
+    "connect": "pnpm --filter web connect",
     "db:generate": "pnpm --filter web db:generate",
     "typecheck": "turbo typecheck",
     "test": "vp test run",

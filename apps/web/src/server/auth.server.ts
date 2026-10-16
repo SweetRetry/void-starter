@@ -1,6 +1,7 @@
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
 import { betterAuth } from "better-auth/minimal"
 import { tanstackStartCookies } from "better-auth/tanstack-start"
+import { redirect } from "@tanstack/react-router"
 import { getRequestHeaders } from "@tanstack/react-start/server"
 import { db } from "void/db"
 import { env } from "void/env"
@@ -53,4 +54,11 @@ export function getAuth() {
 export async function getSessionUser() {
   const session = await getAuth().api.getSession({ headers: getRequestHeaders() })
   return session?.user ?? null
+}
+
+/** For server functions that need a user: the user id, or a redirect to sign-in. */
+export async function requireUserId(): Promise<string> {
+  const user = await getSessionUser()
+  if (!user) throw redirect({ to: "/sign-in" })
+  return user.id
 }
