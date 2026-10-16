@@ -10,8 +10,6 @@ export const noteInput = z.object({
   body: z.string().max(20_000, "Keep the note under 20,000 characters."),
 })
 
-export type NoteInput = z.infer<typeof noteInput>
-
 export const noteId = z.object({ id: z.uuid() })
 
 /** R2 attachments: what a note accepts and how large it may be. */

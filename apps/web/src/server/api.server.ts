@@ -3,7 +3,7 @@ import { and, db, eq } from "void/db"
 import { note } from "../../db/schema"
 import { noteId } from "../lib/note-input"
 import { getAuth } from "./auth.server"
-import { ErrorCode, problemResponse } from "./problem"
+import { problemResponse } from "./problem"
 
 export type Note = typeof note.$inferSelect
 
@@ -14,17 +14,16 @@ export type Note = typeof note.$inferSelect
  */
 export async function ownNoteOrProblem(request: Request, id: string): Promise<Note | Response> {
   const session = await getAuth().api.getSession({ headers: request.headers })
-  if (!session)
-    return problemResponse(request, ErrorCode.UNAUTHORIZED, "Sign in to use this endpoint.")
+  if (!session) return problemResponse(request, "UNAUTHORIZED", "Sign in to use this endpoint.")
 
   if (!noteId.safeParse({ id }).success) {
-    return problemResponse(request, ErrorCode.NOT_FOUND, "Note not found.")
+    return problemResponse(request, "NOT_FOUND", "Note not found.")
   }
   const [row] = await db
     .select()
     .from(note)
     .where(and(eq(note.id, id), eq(note.userId, session.user.id)))
-  return row ?? problemResponse(request, ErrorCode.NOT_FOUND, "Note not found.")
+  return row ?? problemResponse(request, "NOT_FOUND", "Note not found.")
 }
 
 /** Wrap a handler so an unexpected throw still leaves as problem+json carrying the ray id. */
@@ -35,10 +34,15 @@ export function withProblems(
     try {
       return await handler(context)
     } catch (error) {
-      console.error("api.failed", { path: new URL(context.request.url).pathname, error })
+      // An Error serializes to {} in Workers Logs; keep its name, message and stack.
+      const cause =
+        error instanceof Error
+          ? { name: error.name, message: error.message, stack: error.stack }
+          : error
+      console.error("api.failed", { path: new URL(context.request.url).pathname, error: cause })
       return problemResponse(
         context.request,
-        ErrorCode.INTERNAL_SERVER_ERROR,
+        "INTERNAL_SERVER_ERROR",
         "Something went wrong on our side."
       )
     }

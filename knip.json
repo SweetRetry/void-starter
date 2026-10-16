@@ -1,24 +1,20 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "ignoreWorkspaces": ["packages/ui"],
-  "ignore": ["scripts/**", "rules/**", "**/routeTree.gen.ts"],
+  "ignore": ["scripts/**", "rules/**"],
   "workspaces": {
     ".": {
-      "entry": ["vite.config.ts"]
+      "ignoreDependencies": ["vite"]
     },
     "apps/web": {
-      "entry": [
-        "src/router.tsx",
-        "src/routes/**/*.{ts,tsx}",
-        "db/schema.ts",
-        "env.ts",
-        "void.config.ts"
-      ],
-      "project": ["src/**/*.{ts,tsx}", "db/**/*.ts", "*.ts"]
+      "entry": ["src/routes/**/*.{ts,tsx}", "db/schema.ts", "env.ts", "void.config.ts"],
+      "project": ["src/**/*.{ts,tsx}", "db/**/*.ts", "*.ts"],
+      "ignoreDependencies": ["cloudflare", "tailwindcss"],
+      "vite": false
     },
     "packages/typescript-config": {
       "entry": [],
-      "project": ["*.json"]
+      "project": []
     }
   }
 }

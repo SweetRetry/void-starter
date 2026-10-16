@@ -10,6 +10,7 @@
     "deploy": "pnpm --filter web deploy",
     "connect": "pnpm --filter web connect",
     "db:generate": "pnpm --filter web db:generate",
+    "db:migrate": "pnpm --filter web db:migrate",
     "typecheck": "turbo typecheck",
     "test": "vp test run",
     "lint": "vp lint",
