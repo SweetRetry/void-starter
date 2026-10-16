@@ -1,0 +1,50 @@
+{
+  "name": "server",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "NODE_OPTIONS=--conditions=development DOTENV_CONFIG_PATH=.env.local tsx watch src/index.ts",
+    "start": "DOTENV_CONFIG_PATH=.env.local node dist/index.js",
+    "auth:generate": "NODE_OPTIONS=--conditions=development DOTENV_CONFIG_PATH=.env.local auth generate --config src/auth-config.ts --output src/database/schema.ts --yes && pnpm exec biome check --write src/database/schema.ts",
+    "db:generate": "drizzle-kit generate --config drizzle.config.ts && pnpm exec biome format --write drizzle/meta/*.json",
+    "db:migrate": "drizzle-kit migrate --config drizzle.config.ts",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "^4.0.51",
+    "@better-auth/drizzle-adapter": "^1.7.2",
+    "@hono/node-server": "^2.1.1",
+    "@hono/otel": "^1.1.2",
+    "@hono/zod-openapi": "^1.6.1",
+    "@opentelemetry/sdk-node": "^0.221.0",
+    "@opentelemetry/sdk-trace-base": "^2.10.0",
+    "@scalar/hono-api-reference": "^0.12.0",
+    "@workspace/logger": "workspace:*",
+    "@workspace/observability": "workspace:*",
+    "@workspace/request": "workspace:*",
+    "@workspace/tracing": "workspace:*",
+    "ai": "^7.0.84",
+    "better-auth": "^1.7.2",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.13.5",
+    "hono-pino": "^0.10.3",
+    "hono-rate-limiter": "^0.5.3",
+    "pg": "^8.23.0",
+    "zod": "^4.5.2"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.0",
+    "@types/pg": "^8.23.1",
+    "@workspace/typescript-config": "workspace:*",
+    "auth": "^1.7.2",
+    "drizzle-kit": "^0.31.10",
+    "tsx": "^4.23.12",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
+  }
+}
