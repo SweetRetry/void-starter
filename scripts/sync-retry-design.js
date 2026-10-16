@@ -5,9 +5,9 @@
  *   node scripts/sync-retry-design.js           re-download the pinned commit
  *   node scripts/sync-retry-design.js <sha>     move the pin to <sha>, then download
  *
- * Input: packages/ui/retry/lock.json ({ "repository", "commit" }). The repository is private,
+ * Input: packages/ui/retry.lock.json ({ "repository", "commit" }). The repository is private,
  * so files come through the GitHub CLI with your own login (`gh auth login`).
- * Output: packages/ui/retry/DESIGN.md and packages/ui/src/styles/retry.css, byte-identical
+ * Output: the root DESIGN.md and packages/ui/src/styles/retry.css, byte-identical
  * to upstream. Exits 1 when any download fails, leaving every file untouched.
  */
 
@@ -17,9 +17,9 @@ import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..")
-const lockPath = join(root, "packages/ui/retry/lock.json")
+const lockPath = join(root, "packages/ui/retry.lock.json")
 const files = {
-  "DESIGN.md": "packages/ui/retry/DESIGN.md",
+  "DESIGN.md": "DESIGN.md",
   "globals.css": "packages/ui/src/styles/retry.css",
 }
 
