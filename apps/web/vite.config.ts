@@ -5,6 +5,7 @@ import { defineConfig } from "vite"
 import { voidPlugin } from "void"
 
 export default defineConfig({
+  resolve: { tsconfigPaths: true },
   plugins: [
     // voidPlugin wraps @cloudflare/vite-plugin and must come before tanstackStart.
     voidPlugin(),

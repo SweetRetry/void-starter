@@ -9,7 +9,8 @@
     "preview": "vp preview",
     "typecheck": "void prepare && tsc --noEmit",
     "deploy": "void deploy",
-    "db:generate": "void db generate"
+    "db:generate": "void db generate",
+    "predev": "node scripts/ensure-env.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
