@@ -1,5 +1,5 @@
 /**
- * Apply Retry's component deltas (packages/ui/retry/DESIGN.md › Components) to the shadcn/ui
+ * Apply Retry's component deltas (DESIGN.md › Components) to the shadcn/ui
  * Base UI components in packages/ui/src/components.
  *
  * Run it right after regenerating components from upstream, then accept the result:
