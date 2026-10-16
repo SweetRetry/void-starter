@@ -5,6 +5,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
+    "prepare": "lefthook install",
     "dev": "turbo dev --filter=web",
     "build": "turbo build",
     "deploy": "pnpm --filter web deploy",
