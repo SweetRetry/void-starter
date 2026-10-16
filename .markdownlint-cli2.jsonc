@@ -7,6 +7,8 @@
   // Keep it that way: a rule that overlaps Oxfmt's output causes churn between the two.
   "gitignore": true,
   "globs": ["**/*.md"],
+  // .agents/skills links to skills shipped inside dependencies; they are not ours to lint.
+  "ignores": [".agents/**"],
   "config": {
     // Prose stays unwrapped. These docs are CJK paragraphs and wide tables; Oxfmt
     // preserves the author's line breaks, so a length limit would only force manual
