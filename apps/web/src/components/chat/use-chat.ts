@@ -96,10 +96,12 @@ export function useChat(chatId: string, saved: Turn[], savedModel?: string) {
         })
       )
       // Nothing reached the server: take the turn back so the thread matches what is saved.
-      if (!sent)
+      // Otherwise the chat exists now, so reload the sidebar's session list.
+      if (sent) void router.invalidate()
+      else
         setTurns((current) => current.filter((turn) => turn.id !== userId && turn.id !== answerId))
     },
-    [chatId, model, run]
+    [chatId, model, router, run]
   )
 
   const onRetry = useCallback(
@@ -123,16 +125,10 @@ export function useChat(chatId: string, saved: Turn[], savedModel?: string) {
 
   const onStop = useCallback(() => abort.current?.abort(), [])
 
-  const onReset = useCallback(() => {
-    abort.current?.abort()
-    void router.navigate({ to: "/" })
-  }, [router])
-
   return {
     model,
     models: [...MODELS],
     onModelChange: setModel,
-    onReset,
     onRetry,
     onSend,
     onStop,

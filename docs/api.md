@@ -21,7 +21,7 @@ Both streams are Workers AI's SSE. Older models send `data: {"response": "..."}`
 
 Files are served with `x-content-type-options: nosniff` and `content-security-policy: sandbox`, so an uploaded HTML or SVG file never runs on the app's origin.
 
-There are no accounts. A chat id is a random UUID, and whoever holds the link can read the chat and its files.
+There are no accounts. The first page load sets a `visitor` cookie (a random UUID, HttpOnly, one year), and the first message ties the chat to it. Every route answers `404` for a chat owned by another visitor, the same as for a missing one, and `400` when the cookie is absent.
 
 ## Error contract
 

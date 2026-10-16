@@ -1,14 +1,30 @@
 import { waitUntil } from "cloudflare:workers"
 import { ai } from "void/ai"
-import { asc, db, desc, eq } from "void/db"
+import { and, asc, db, desc, eq } from "void/db"
 import { UsageLimit } from "void/limits"
 import { storage } from "void/storage"
 
 import { attachment, chat, message } from "../../db/schema"
 import { createAiStreamParser } from "@/lib/ai-stream"
-import { fileUrl, type Turn } from "@/lib/chat"
+import { fileUrl, type Session, type Turn } from "@/lib/chat"
 import { AI_GATEWAY_ID, FILE_TEXT_CHARS, HISTORY_TURNS, SYSTEM_PROMPT } from "./ai"
 import { problemResponse } from "./problem"
+
+/** Whether a chat id is free, the visitor's own, or someone else's. */
+export async function chatAccess(chatId: string, visitor: string) {
+  const [row] = await db.select({ visitorId: chat.visitorId }).from(chat).where(eq(chat.id, chatId))
+  return !row ? "new" : row.visitorId === visitor ? "own" : "other"
+}
+
+/** The visitor's chats, most recently used first. */
+export function listSessions(visitor: string): Promise<Session[]> {
+  return db
+    .select({ id: chat.id, title: chat.title })
+    .from(chat)
+    .where(eq(chat.visitorId, visitor))
+    .orderBy(desc(chat.updatedAt))
+    .limit(50)
+}
 
 /**
  * The thread as the page renders it, oldest first, and the model that wrote the last answer.
@@ -68,9 +84,23 @@ async function readable(file: File, bytes: ArrayBuffer): Promise<string | null> 
   }
 }
 
+const TITLE_CHARS = 60
+
 /** Save a user turn: the chat row on first use, the message, and each file in R2. */
-export async function saveUserTurn(chatId: string, content: string, files: File[]) {
-  await db.insert(chat).values({ id: chatId }).onConflictDoNothing()
+export async function saveUserTurn(
+  chatId: string,
+  visitor: string,
+  content: string,
+  files: File[]
+) {
+  const firstLine = content.split("\n")[0]?.trim() || files[0]?.name || "Untitled chat"
+  const title =
+    firstLine.length > TITLE_CHARS ? `${firstLine.slice(0, TITLE_CHARS - 1)}…` : firstLine
+  await db.insert(chat).values({ id: chatId, visitorId: visitor, title }).onConflictDoNothing()
+  await db
+    .update(chat)
+    .set({ updatedAt: new Date() })
+    .where(and(eq(chat.id, chatId), eq(chat.visitorId, visitor)))
   const messageId = crypto.randomUUID()
   await db.insert(message).values({ id: messageId, chatId, role: "user", content })
 
