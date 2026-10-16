@@ -170,7 +170,11 @@ const Tick = memo(function Tick({
   )
 
   return (
-    <li className="flex items-center" data-slot="scroll-rail-tick" style={{ height: config.pitch }}>
+    <div
+      className="flex items-center"
+      data-slot="scroll-rail-tick"
+      style={{ height: config.pitch }}
+    >
       {item.preview ? (
         <Popover
           onOpenChange={(open) => {
@@ -183,7 +187,6 @@ const Tick = memo(function Tick({
           <PopoverTrigger render={trigger} />
           <PopoverContent
             align="center"
-            className="w-72 p-3"
             data-slot="scroll-rail-preview"
             finalFocus={false}
             initialFocus={false}
@@ -198,7 +201,7 @@ const Tick = memo(function Tick({
       ) : (
         trigger
       )}
-    </li>
+    </div>
   )
 })
 
@@ -292,7 +295,7 @@ export function ScrollRail({
     [count]
   )
 
-  const onKeyDown = (event: React.KeyboardEvent<HTMLOListElement>) => {
+  const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     const from = cursor ?? active
 
     switch (event.key) {
@@ -324,7 +327,7 @@ export function ScrollRail({
     }
   }
 
-  const onBlur = (event: React.FocusEvent<HTMLOListElement>) => {
+  const onBlur = (event: React.FocusEvent<HTMLDivElement>) => {
     if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
       setCursor(null)
     }
@@ -365,7 +368,15 @@ export function ScrollRail({
       data-slot="scroll-rail"
       style={{ width: maxLength }}
     >
-      <ol className="m-0 list-none p-0" onBlur={onBlur} onKeyDown={onKeyDown}>
+      {/* A toolbar in the WAI-ARIA sense: one tab stop (the current tick), arrows walk the
+          ticks. The container itself stays out of the tab order. */}
+      <div
+        aria-orientation="vertical"
+        onBlur={onBlur}
+        onKeyDown={onKeyDown}
+        role="toolbar"
+        tabIndex={-1}
+      >
         {items.map((item, index) => (
           <Tick
             ariaLabel={`${index + 1} of ${count}: ${item.label ?? "Untitled"}`}
@@ -383,7 +394,7 @@ export function ScrollRail({
             track={track}
           />
         ))}
-      </ol>
+      </div>
     </nav>
   )
 }

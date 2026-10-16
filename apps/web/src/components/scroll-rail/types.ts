@@ -11,8 +11,7 @@ export interface ScrollRailItem {
 }
 
 /** Focus is a continuous tick index. Pass a number for a static rail, or the motion
- *  value that `useMessageFocus` / `useScrollProgress` hand back to follow a scroll
- *  container. */
+ *  value that `useMessageFocus` hands back to follow a scroll container. */
 export type ScrollRailFocus = number | MotionValue<number>
 
 export interface ScrollRailProps {

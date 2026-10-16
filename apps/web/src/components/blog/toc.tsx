@@ -7,7 +7,15 @@ import type { Heading } from "@/lib/toc"
 const READING_LINE = 96
 
 /** The post's anchor nav. The section under the reading line is current. */
-export function Toc({ headings, title = true }: { headings: Heading[]; title?: boolean }) {
+export function Toc({
+  headings,
+  title = true,
+  label = "On this page",
+}: {
+  headings: Heading[]
+  title?: boolean
+  label?: string
+}) {
   const [current, setCurrent] = useState(headings[0]?.id)
 
   useEffect(() => {
@@ -35,8 +43,8 @@ export function Toc({ headings, title = true }: { headings: Heading[]; title?: b
   }, [headings])
 
   return (
-    <nav aria-label="On this page" className="text-sm">
-      {title && <p className="mb-3 text-xs text-subtle-foreground">On this page</p>}
+    <nav aria-label={label} className="text-sm">
+      {title && <p className="mb-3 text-xs text-subtle-foreground">{label}</p>}
       <ul className="flex flex-col gap-2">
         {headings.map((heading) => (
           <li key={heading.id} className={cn(heading.depth === 3 && "pl-3")}>

@@ -1,4 +1,12 @@
-import type { PromptModel } from "@/components/agents/prompt-input"
+/** The providers the app draws a mark for (components/ui/provider-mark.tsx). */
+export type ProviderId = "meta" | "mistral" | "openai" | "qwen"
+
+/** One model the composer can be pointed at. */
+export interface Model {
+  id: string
+  name: string
+  provider: ProviderId
+}
 
 /**
  * Workers AI models the composer offers. They run on Cloudflare's free daily allowance, so the
@@ -13,7 +21,7 @@ export const MODELS = [
     name: "Mistral Small 3.1",
     provider: "mistral",
   },
-] as const satisfies readonly PromptModel[]
+] as const satisfies readonly Model[]
 
 export type ModelId = (typeof MODELS)[number]["id"]
 

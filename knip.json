@@ -1,17 +1,17 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "ignoreWorkspaces": ["packages/ui"],
-  "ignore": ["scripts/**", "rules/**"],
+  "ignore": ["rules/**"],
   "workspaces": {
     ".": {
+      "entry": ["scripts/e2e-browser.js"],
       "ignoreDependencies": ["vite"]
     },
     "apps/web": {
       "entry": ["src/routes/**/*.{ts,tsx}", "db/schema.ts", "void.config.ts"],
       "project": ["src/**/*.{ts,tsx}", "db/**/*.ts", "*.ts"],
       "ignoreDependencies": ["cloudflare", "tailwindcss"],
-      "vite": false,
-      "ignore": ["src/components/{agents,scroll-rail,ui}/**", "src/lib/{ease.ts,hooks/**}"]
+      "vite": false
     },
     "packages/typescript-config": {
       "entry": [],

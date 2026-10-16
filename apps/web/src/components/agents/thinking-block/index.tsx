@@ -6,7 +6,7 @@ import { Streamdown } from "streamdown"
 
 import { AgentDisclosure } from "@/components/agents/agent-disclosure"
 import { AgentIndicator } from "@/components/agents/agent-indicator"
-import { EASE_OUT } from "@/lib/ease"
+import { EASE } from "@/lib/ease"
 import { cn } from "@workspace/ui/lib/utils"
 
 const formatDuration = (total: number) => `${Math.max(0, Math.floor(total))}s`
@@ -80,8 +80,8 @@ const SLACK = 8
  *  that a line arriving mid-rise is not still travelling when the next one lands. */
 const RISE_MS = 240
 
-/** `EASE_OUT`, spelled the way the Web Animations API wants it. */
-const RISE_EASING = `cubic-bezier(${EASE_OUT.join(", ")})`
+/** `EASE`, spelled the way the Web Animations API wants it. */
+const RISE_EASING = `cubic-bezier(${EASE.join(", ")})`
 
 /**
  * The mask, as two ramps off one constant. Each edge fades in over the last `FADE` px
@@ -161,37 +161,17 @@ export const ThinkingBlock = ({
 }: ThinkingBlockProps) => {
   const reduce = useReducedMotion() ?? false
   const bodyId = useId()
-  const mountedAt = useRef(Date.now())
-  const origin = startedAt ?? mountedAt.current
-
   const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen)
   const isOpen = open ?? uncontrolledOpen
 
-  // The count the row froze on, captured off the falling edge of `streaming` rather
-  // than ticked in state: a second-by-second re-render would land in the middle of the
-  // rise below, which is the one thing that must not stutter. `null` means nothing
-  // streamed here, so there is no honest number to print and the label stands alone.
-  const [held, setHeld] = useState<number | null>(null)
-  const wasStreaming = useRef(streaming)
+  // The caller knows when the thinking stopped, so it hands the finished count in as
+  // `duration`. Without one there is no honest number to print and the label stands alone.
+  const seconds = duration ?? null
 
-  useEffect(() => {
-    if (streaming) {
-      wasStreaming.current = true
-      setHeld(null)
-      return
-    }
-
-    if (wasStreaming.current) {
-      setHeld(Math.max(0, Math.floor((Date.now() - origin) / 1000)))
-    }
-
-    wasStreaming.current = false
-  }, [origin, streaming])
-
-  const seconds = duration ?? held
-
+  // The live count is written straight into the DOM, not ticked in state: a second-by-
+  // second re-render would land in the middle of the rise below, which must not stutter.
   const clockRef = useRef<HTMLSpanElement>(null)
-  useClock(clockRef, startedAt, duration !== undefined ? duration : undefined)
+  useClock(clockRef, startedAt, duration)
 
   const windowRef = useRef<HTMLDivElement>(null)
   const streamRef = useRef<HTMLDivElement>(null)
@@ -352,16 +332,13 @@ export const ThinkingBlock = ({
         type="button"
       >
         {streaming ? (
-          <span
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors group-hover/thinking:text-foreground"
-            role="status"
-          >
+          <output className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors group-hover/thinking:text-foreground">
             <AgentIndicator state="thinking" />
             <span>{label}</span>
             <span aria-hidden="true" className="text-muted-foreground tabular-nums" ref={clockRef}>
               {formatDuration(0)}
             </span>
-          </span>
+          </output>
         ) : (
           <span className="text-muted-foreground text-sm transition-colors group-hover/thinking:text-foreground">
             {seconds === null ? doneLabel : `${doneLabel} for ${formatDuration(seconds)}`}
@@ -372,7 +349,7 @@ export const ThinkingBlock = ({
           animate={{ rotate: isOpen ? 180 : 0 }}
           className="flex shrink-0 items-center"
           initial={false}
-          transition={reduce ? { duration: 0 } : { duration: 0.2, ease: EASE_OUT }}
+          transition={reduce ? { duration: 0 } : { duration: 0.2, ease: EASE }}
         >
           <ChevronDown aria-hidden="true" className="size-3.5 text-muted-foreground" />
         </motion.span>

@@ -37,10 +37,11 @@ const MAX_FIELD_HEIGHT = 200
  *  the room the draft is visibly allowed to grow into. */
 const MIN_ROWS = 2
 
-/** The footer's round controls are the platform button at one size, so the row reads as
- *  one row rather than three buttons that happen to be next to each other. Everything
- *  else — hover, focus ring, the disabled treatment — is the button's own. */
-const ROUND_CONTROL = "size-10 shrink-0 rounded-full"
+/** The footer's controls are the platform button at one size, so the row reads as one
+ *  row rather than three buttons that happen to be next to each other. Everything else,
+ *  shape included, is the button's own (DESIGN.md keeps `rounded-full` for switches,
+ *  avatars and dots). */
+const FOOTER_CONTROL = "size-10 shrink-0"
 
 /**
  * The row above the field: what rides with the message. For attachments, quotes of the
@@ -72,14 +73,11 @@ export const PromptInputHeader = ({ children, className, ...props }: ComponentPr
  * Props are the chip's own, so `onRemove` is what makes it removable and `progress`
  * under 100 is what draws the upload ring.
  */
-export const PromptInputAttachment = ({ className, ...props }: AttachmentProps) => (
-  <Attachment
-    className={cn(
-      "animate-in fade-in zoom-in-95 duration-150 motion-reduce:animate-none",
-      className
-    )}
-    {...props}
-  />
+export const PromptInputAttachment = (props: AttachmentProps) => (
+  // The entrance belongs to the header, not the chip, so it rides on a wrapper.
+  <div className="animate-in fade-in zoom-in-95 duration-150 motion-reduce:animate-none">
+    <Attachment {...props} />
+  </div>
 )
 
 /**
@@ -104,6 +102,18 @@ export const PromptInputTextarea = ({
   // Two empty lines in px, measured once off the field itself so it stays true if the
   // type scale changes.
   const floor = useRef(0)
+
+  // Text typed before hydration is in the DOM but not in the draft: hydration keeps the
+  // field's value and never reports it, so the send stays dead until another keystroke.
+  // Adopt it once, on mount.
+  useLayoutEffect(() => {
+    const typed = field.current?.value
+    if (typed && typed !== value) {
+      setValue(typed)
+    }
+    // Mount only: after it, every keystroke reaches the draft through `onChange`.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useLayoutEffect(() => {
     const node = field.current
@@ -163,13 +173,13 @@ export const PromptInputFooter = ({ className, ...props }: ComponentProps<"div">
 
 /** A round control in the footer: the platform `Button` at 40px round, with every
  *  variant, size and feedback prop it already has left intact. */
-export const PromptInputButton = ({
+const PromptInputButton = ({
   className,
   size = "icon",
   variant = "ghost",
   ...props
 }: PromptInputButtonProps) => (
-  <Button className={cn(ROUND_CONTROL, className)} size={size} variant={variant} {...props} />
+  <Button className={cn(FOOTER_CONTROL, className)} size={size} variant={variant} {...props} />
 )
 
 /**

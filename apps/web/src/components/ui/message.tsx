@@ -24,7 +24,7 @@ import { cn } from "@workspace/ui/lib/utils"
  * keyboard reaches it.
  * --------------------------------------------------------------------------- */
 
-export type MessageFrom = "assistant" | "system" | "user"
+type MessageFrom = "assistant" | "system" | "user"
 
 const MessageContext = createContext<MessageFrom | null>(null)
 

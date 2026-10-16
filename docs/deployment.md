@@ -24,7 +24,9 @@ On this starter's first deploy, the Worker went live with its `workers.dev` rout
 CLOUDFLARE_WORKERS_SUBDOMAIN=<your-subdomain> pnpm run deploy
 ```
 
-`void.config.ts` sets `workers_dev: true`, so later deploys keep the route on.
+`void.config.ts` ships with `workers_dev: false`, so the public `workers.dev` route stays closed and nobody can spend the account's Workers AI allowance through it. Set it to `true` to open the app. `preview_urls: true` stays on either way: `void deploy` checks each new version's `/__void/ready` through its preview URL before it shifts traffic, and each version's preview URL (`<version>-<worker>.<subdomain>.workers.dev`) stays reachable.
+
+The `deploy` script first deletes `apps/web/.void/preview-deploy-config.json`. A plain `vite build` (`pnpm verify` runs one) stashes Wrangler's deploy pointer there. With prerendering on, Void 1.1.11 restores that stash for the prerender preview during `void deploy` and deletes `.wrangler/deploy/config.json` when the build process exits, so the deploy fails with `ENOENT … .wrangler/deploy/config.json`. Without the stash the deploy build keeps its own pointer. Drop the step once Void fixes it.
 
 `void deploy` writes `apps/web/void.lock.json` with your account id and the resources it created. The starter repo ignores it so no fork inherits someone else's account. In your own app, delete the `apps/web/void.lock.json` line from `.gitignore` and commit the file, so later deploys and teammates reuse the same database and bucket.
 
@@ -40,7 +42,7 @@ The model picker lists `@cf/*` models from `apps/web/src/lib/models.ts`. They ne
 
 ### Usage limits
 
-There are no accounts, so anyone with the URL can send messages. On the Workers Free plan, Workers AI stops at the daily free allowance and the chat answers `429`. On Workers Paid, usage past the allowance is billed. Set a rate limit on the gateway (AI Gateway › Settings › Rate limiting) before you share the URL widely.
+There are no accounts, so once the `workers.dev` route is on, anyone with the URL can send messages. On the Workers Free plan, Workers AI stops at the daily free allowance and the chat answers `429`. On Workers Paid, usage past the allowance is billed. Set a rate limit on the gateway (AI Gateway › Settings › Rate limiting) before you share the URL widely.
 
 ### Provider models
 

@@ -1,4 +1,5 @@
 import { ArrowDown } from "lucide-react"
+import { useReducedMotion } from "motion/react"
 import {
   createContext,
   useCallback,
@@ -39,12 +40,6 @@ type ButtonProps = ComponentProps<typeof Button>
  *  pinned has not finished rounding. */
 const SLACK = 24
 
-/** Reduced motion turns a glide into a jump: the position is the information, and a
- *  smooth scroll across half a thread is not worth the wait it costs. */
-const prefersJump = () =>
-  typeof window !== "undefined" &&
-  Boolean(window.matchMedia?.("(prefers-reduced-motion: reduce)").matches)
-
 /** How much of the thread sits below the bottom edge, in px. Negative while the
  *  transcript is shorter than the window and there is nothing to scroll at all. */
 const distanceFromEnd = (node: HTMLElement) =>
@@ -82,20 +77,26 @@ export const Conversation = ({ children, className, ...props }: ConversationProp
   // A ref, not state: the follow is read on frames the renderer never sees.
   const following = useRef(true)
   const [atEnd, setAtEnd] = useState(true)
+  // Reduced motion turns a glide into a jump: the position is the information, and a
+  // smooth scroll across half a thread is not worth the wait it costs.
+  const reduce = useReducedMotion()
 
-  const scrollToEnd = useCallback((behavior: ScrollBehavior = "smooth") => {
-    const node = viewport.current
-    if (!node) {
-      return
-    }
+  const scrollToEnd = useCallback(
+    (behavior: ScrollBehavior = "smooth") => {
+      const node = viewport.current
+      if (!node) {
+        return
+      }
 
-    following.current = true
-    setAtEnd(true)
-    node.scrollTo({
-      behavior: behavior === "smooth" && prefersJump() ? "auto" : behavior,
-      top: node.scrollHeight,
-    })
-  }, [])
+      following.current = true
+      setAtEnd(true)
+      node.scrollTo({
+        behavior: behavior === "smooth" && reduce ? "auto" : behavior,
+        top: node.scrollHeight,
+      })
+    },
+    [reduce]
+  )
 
   const sync = useCallback(() => {
     const node = viewport.current
@@ -221,7 +222,9 @@ export const ConversationContent = ({
   return (
     <div
       className={cn(
-        "flex min-h-0 flex-1 flex-col overflow-y-auto [overflow-anchor:none]",
+        // The gutters match the composer's, wide enough for the rail from `sm` up, so the
+        // thread lines up with the composer and the rail never covers text.
+        "flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto px-4 pt-6 pb-16 [overflow-anchor:none] sm:px-9",
         className
       )}
       data-slot="conversation-content"
@@ -250,20 +253,25 @@ export const ConversationScrollButton = ({ children, className, ...props }: Butt
   }
 
   return (
-    <Button
-      aria-label="Scroll to latest"
+    // Placement and entrance ride on a wrapper; the button keeps its own shape (DESIGN.md:
+    // no shadows, `rounded-full` only for switches, avatars and dots).
+    <div
       className={cn(
-        "absolute bottom-4 left-1/2 z-10 -translate-x-1/2 rounded-full shadow-md",
+        "absolute bottom-4 left-1/2 z-10 -translate-x-1/2",
         "animate-in fade-in duration-200 motion-reduce:animate-none",
         className
       )}
-      onClick={() => scrollToEnd()}
-      size="icon"
-      type="button"
-      variant="secondary"
-      {...props}
     >
-      {children ?? <ArrowDown className="size-4" />}
-    </Button>
+      <Button
+        aria-label="Scroll to latest"
+        onClick={() => scrollToEnd()}
+        size="icon"
+        type="button"
+        variant="secondary"
+        {...props}
+      >
+        {children ?? <ArrowDown className="size-4" />}
+      </Button>
+    </div>
   )
 }

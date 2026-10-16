@@ -19,7 +19,7 @@ Route content by kind: system and usage knowledge → `docs/`; plans not decided
 - `packages/ui` owns each component's **own appearance**: height, padding, radius, color and type come from its variants (`variant` / `size`). Call sites control only layout (margin, width, flex or grid placement) and props.
 - A new look goes where its reuse is: a variant in the component when several apps need it (an explicit unfreeze), otherwise a recipe (`packages/ui/src/recipes`) or an app component.
 - Changes to `packages/ui` and `globals.css` need **HITL** (a human confirms first), so nobody quietly alters a base component or the global styles:
-  - `packages/ui/src/components/**` is upstream shadcn/ui code (Base UI, `base-nova`) with Retry's deltas applied by `scripts/apply-retry-deltas.js`. It is **byte-frozen (F1)**: the baseline is `packages/ui/frozen.manifest.json`, checked by `pnpm ui:freeze` inside `rules:check`. The baseline is the last accepted state, not upstream's latest; `shadcn diff` answers that at upgrade time. Accept a change with `pnpm ui:freeze:update` in its own commit that says whether it is an upstream upgrade or a recorded unfreeze.
+  - `packages/ui/src/components/**` is upstream shadcn/ui code (Base UI, `base-nova`) with Retry's component deltas applied (`DESIGN.md` › Components). It is **byte-frozen (F1)**: the baseline is `packages/ui/frozen.manifest.json`, checked by `pnpm ui:freeze` inside `rules:check`. The baseline is the last accepted state, not upstream's latest; `shadcn diff` answers that at upgrade time. Accept a change with `pnpm ui:freeze:update` in its own commit that says whether it is an upstream upgrade or a recorded unfreeze.
   - `packages/ui/src/styles/globals.css` and `retry.css` hold the theme and tokens. They implement Retry, specified in `DESIGN.md`. Agents never change them silently: propose first and wait for explicit approval.
 - Before building something, check the docs, types and extension points of the dependencies already here. Prefer maintained, production-proven libraries.
 - Tests never start or depend on a container runtime. Integration checks that need outside resources run in an explicit integration environment.
@@ -53,6 +53,7 @@ One option per concern. Don't add alternatives.
 
 ## Verification
 
+- For browser E2E, reproducing user journeys, or capturing runtime evidence, read [.agents/skills/verify-web/SKILL.md](.agents/skills/verify-web/SKILL.md). `pnpm e2e` runs the local browser smoke suite. The feature map distinguishes automated checks from journeys that need connected AI.
 - After a code change, `pnpm verify` is the one full gate. It runs `format:check`, `md:check`, `lint`, `rules:check`, `typecheck`, `test`, `build` and `knip`. Day-to-day commands are in the root `package.json`.
 - Oxfmt shapes Markdown; markdownlint adds only structural rules (fence languages, heading levels, links), configured in `.markdownlint-cli2.jsonc`. Keep them from overlapping, or the two commands keep rewriting the same file.
 - Git hooks come from the root `lefthook.yml` and install with `pnpm install`. Pre-commit runs Oxfmt and markdownlint on staged files (and re-stages them) plus `rules:check`. Pre-push runs typecheck and test. Hooks are a subset of `pnpm verify` and don't replace CI. Skip them with `git commit --no-verify` or `LEFTHOOK=0`.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test"
 
-import { headingsOf, slugify } from "../src/lib/toc.ts"
+import { headingsOf, readingMinutes, slugify } from "../src/lib/toc.ts"
 
 describe("headingsOf", () => {
   it("lists h2 and h3, strips code ticks, and skips fenced code", () => {
@@ -23,5 +23,13 @@ describe("slugify", () => {
   it("keeps letters and digits in any script", () => {
     expect(slugify("Workers AI has no local simulator")).toBe("workers-ai-has-no-local-simulator")
     expect(slugify("部署 D1, R2!")).toBe("部署-d1-r2")
+  })
+})
+
+describe("readingMinutes", () => {
+  it("counts English words and CJK characters with a 1-minute floor", () => {
+    expect(readingMinutes("Short note.")).toBe(1)
+    expect(readingMinutes("word ".repeat(600))).toBe(3)
+    expect(readingMinutes("字".repeat(700))).toBe(2)
   })
 })

@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react"
 
 import { cn } from "@workspace/ui/lib/utils"
 
-export type AgentState = "idle" | "thinking" | "tool-call" | "streaming"
+type AgentState = "idle" | "thinking" | "tool-call" | "streaming"
 
 /* -- Grid geometry ---------------------------------------------------------- */
 

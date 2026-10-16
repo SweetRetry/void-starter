@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 
-import { MAX_FILE_BYTES, MAX_FILES, sendInput } from "@/lib/chat"
+import { chatId, MAX_FILE_BYTES, MAX_FILES, sendInput, sendProblem } from "@/lib/chat"
 import { chatRoute } from "@/server/api.server"
 import { saveUserTurn, streamAnswer } from "@/server/chat.server"
 import { problemResponse } from "@/server/problem"
@@ -12,10 +12,11 @@ import { problemResponse } from "@/server/problem"
 export const Route = createFileRoute("/api/chats/$chatId/messages")({
   server: {
     handlers: {
-      POST: chatRoute(async ({ request, params, visitor }) => {
+      POST: chatRoute(chatId, async ({ request, params, visitor }) => {
+        // Refuse an oversized body before reading it.
         const declared = Number(request.headers.get("content-length") ?? 0)
         if (declared > MAX_FILES * MAX_FILE_BYTES + 64 * 1024) {
-          return problemResponse(request, "PAYLOAD_TOO_LARGE", "Files can be up to 5 MB each.")
+          return problemResponse(request, "PAYLOAD_TOO_LARGE", "The message is too large to send.")
         }
         const form = await request.formData().catch(() => null)
         if (!form)
@@ -24,31 +25,20 @@ export const Route = createFileRoute("/api/chats/$chatId/messages")({
         const input = sendInput.safeParse({
           content: form.get("content"),
           model: form.get("model"),
+          files: form.getAll("files"),
         })
         if (!input.success) {
+          const { tooLarge, detail } = sendProblem(input.error)
           return problemResponse(
             request,
-            "VALIDATION_ERROR",
-            "Pick a model and keep the message under 8,000 characters."
-          )
-        }
-        const files = form.getAll("files").filter((value): value is File => value instanceof File)
-        if (!input.data.content && files.length === 0) {
-          return problemResponse(request, "VALIDATION_ERROR", "Write a message or attach a file.")
-        }
-        if (files.length > MAX_FILES) {
-          return problemResponse(request, "VALIDATION_ERROR", `Attach up to ${MAX_FILES} files.`)
-        }
-        if (files.some((file) => file.size === 0 || file.size > MAX_FILE_BYTES)) {
-          return problemResponse(
-            request,
-            "PAYLOAD_TOO_LARGE",
-            "Files can be up to 5 MB each, and not empty."
+            tooLarge ? "PAYLOAD_TOO_LARGE" : "VALIDATION_ERROR",
+            detail
           )
         }
 
-        await saveUserTurn(params.chatId, visitor, input.data.content, files)
-        return streamAnswer(request, params.chatId, input.data.model)
+        const { content, model, files } = input.data
+        await saveUserTurn(params.chatId, visitor, content, files)
+        return streamAnswer(request, params.chatId, model)
       }),
     },
   },

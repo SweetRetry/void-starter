@@ -1,8 +1,16 @@
-import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router"
+import {
+  createRootRoute,
+  HeadContent,
+  Outlet,
+  Scripts,
+  useRouterState,
+} from "@tanstack/react-router"
 import { Toaster } from "@workspace/ui/components/sonner"
 import { MotionConfig } from "motion/react"
 import type { ReactNode } from "react"
 
+import { langOfPath } from "@/components/blog/posts"
+import { EASE } from "@/lib/ease"
 import appCss from "../styles.css?url"
 
 export const Route = createRootRoute({
@@ -33,14 +41,16 @@ export const Route = createRootRoute({
 })
 
 function RootDocument({ children }: { children: ReactNode }) {
+  // A Chinese post says so, for fonts, hyphenation and screen readers.
+  const lang = useRouterState({ select: (state) => langOfPath(state.location.pathname) })
   return (
-    <html lang="en" className="dark">
+    <html lang={lang} className="dark">
       <head>
         <HeadContent />
       </head>
       <body>
         {/* Retry: one curve and duration for every Motion transition; reduced motion follows the OS. */}
-        <MotionConfig reducedMotion="user" transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}>
+        <MotionConfig reducedMotion="user" transition={{ duration: 0.2, ease: EASE }}>
           {children}
           <Toaster />
         </MotionConfig>

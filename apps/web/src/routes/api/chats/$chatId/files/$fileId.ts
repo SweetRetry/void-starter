@@ -1,17 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { and, db, eq } from "void/db"
 import { storage } from "void/storage"
+import { z } from "zod"
 
 import { attachment } from "../../../../../../db/schema"
+import { chatId, isPreviewableImage } from "@/lib/chat"
 import { chatRoute } from "@/server/api.server"
 import { problemResponse } from "@/server/problem"
+
+const fileParams = chatId.extend({ fileId: z.uuid() })
 
 /** GET a file from R2. Images show inline; everything else downloads. */
 export const Route = createFileRoute("/api/chats/$chatId/files/$fileId")({
   server: {
     handlers: {
-      GET: chatRoute(async ({ request, params }) => {
-        const { fileId } = params as typeof params & { fileId: string }
+      GET: chatRoute(fileParams, async ({ request, params }) => {
+        const { fileId } = params
         const [row] = await db
           .select()
           .from(attachment)
@@ -25,7 +29,7 @@ export const Route = createFileRoute("/api/chats/$chatId/files/$fileId")({
         // An uploaded HTML or SVG file must never run as a page on this origin.
         headers.set("x-content-type-options", "nosniff")
         headers.set("content-security-policy", "sandbox")
-        const inline = /^image\/(png|jpeg|gif|webp|avif)$/.test(row.type)
+        const inline = isPreviewableImage(row.type)
         headers.set(
           "content-disposition",
           `${inline ? "inline" : "attachment"}; filename*=UTF-8''${encodeURIComponent(row.name)}`

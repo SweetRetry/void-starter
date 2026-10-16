@@ -28,6 +28,8 @@ export default defineConfig({
       },
     },
     rules: {
+      // `const { node, ...props } = p` is how a prop is dropped before spreading the rest.
+      "no-unused-vars": ["warn", { ignoreRestSiblings: true }],
       "shadcn/no-restyle": ["error", { allow: ["layout"] }],
       "shadcn/no-raw-colors": "error",
       "shadcn/no-unknown-classes": "error",
@@ -35,17 +37,22 @@ export default defineConfig({
       "shadcn/no-inline-styles": "error",
       "shadcn/no-arbitrary-values": ["error", { allow: ["layout"] }],
     },
-    ignorePatterns: [
-      "packages/ui/src/components/**",
-      // Motif registry code (motif.sweetretry.com), vendored by `shadcn add`-style import. Like
-      // upstream shadcn/ui, it is linted where it comes from, not here.
-      "apps/web/src/components/{agents,scroll-rail}/**",
-      "apps/web/src/components/ui/**",
-      "apps/web/src/components/chat/chat-app.tsx",
-      "apps/web/src/lib/{ease.ts,hooks/**}",
-      "**/routeTree.gen.ts",
-      "**/.void/**",
+    overrides: [
+      {
+        // The app's own component library, where appearance is defined rather than applied:
+        // motion values drive inline styles, brand marks carry their colors, and chips size
+        // their type off the container. Like packages/ui, it is exempt from the rules that
+        // keep appearance out of call sites. `no-restyle` still applies, so it composes
+        // packages/ui components by their variants like any other caller.
+        files: ["apps/web/src/components/{agents,scroll-rail,ui}/**"],
+        rules: {
+          "shadcn/no-raw-colors": "off",
+          "shadcn/no-inline-styles": "off",
+          "shadcn/no-arbitrary-values": "off",
+        },
+      },
     ],
+    ignorePatterns: ["packages/ui/src/components/**", "**/routeTree.gen.ts", "**/.void/**"],
   },
   test: {
     projects: ["apps/*", "packages/*"],

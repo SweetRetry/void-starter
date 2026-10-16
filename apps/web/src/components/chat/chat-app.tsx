@@ -1,4 +1,5 @@
 import { Check, Copy, RotateCcw } from "lucide-react"
+import { useReducedMotion } from "motion/react"
 import { useEffect, useRef, useState } from "react"
 import type { ComponentProps, ReactNode } from "react"
 import { Streamdown } from "streamdown"
@@ -14,7 +15,7 @@ import {
   PromptInputSubmit,
   PromptInputTextarea,
 } from "@/components/agents/prompt-input"
-import type { PromptAttachment, PromptModel } from "@/components/agents/prompt-input"
+import type { PromptAttachment } from "@/components/agents/prompt-input"
 import { ThinkingBlock } from "@/components/agents/thinking-block"
 import { ScrollRail, ScrollRailPreview } from "@/components/scroll-rail"
 import type { ScrollRailItem } from "@/components/scroll-rail"
@@ -30,7 +31,9 @@ import {
 } from "@/components/ui/conversation"
 import { Message, MessageActions, MessageContent } from "@/components/ui/message"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@workspace/ui/components/tooltip"
+import { isPreviewableImage, type ChatFile, type ChatTurn } from "@/lib/chat"
 import { useMessageFocus } from "@/lib/hooks/use-scroll-focus"
+import type { Model } from "@/lib/models"
 import { cn } from "@workspace/ui/lib/utils"
 
 /* -- The app -------------------------------------------------------------------
@@ -42,62 +45,27 @@ import { cn } from "@workspace/ui/lib/utils"
  * of `Attachment`. This file is the wiring: it decides how they sit, and nothing else.
  *
  * The state it owns is the draft's attachments and nothing more. The turns belong to
- * the caller, because they come from a transport this component has no opinion about
- * — swap `use-demo-chat` for a real one and the surface does not move.
+ * the caller, because they come from a transport this component has no opinion about:
+ * `use-chat` is the one it has today.
  * --------------------------------------------------------------------------- */
 
-/** A file riding with a reader's turn, as the thread renders it. */
-export interface ChatFile {
-  id: string
-  name: string
-  src?: string
-  /** The picked file itself, on the way out of the composer. */
-  file?: File
-}
-
-/** One turn in the thread. */
-export interface ChatTurn {
-  id: string
-  from: "assistant" | "user"
-  /** The answer, as markdown. Empty while the turn is still thinking. */
-  content: string
-  /** The reasoning the answer was written from, when the model exposed one. */
-  reasoning?: string
-  /** Epoch ms the pass started, so the thinking block's clock survives a re-render. */
-  startedAt?: number
-  /** The turn is still arriving. */
-  streaming?: boolean
-  /** Files riding with a reader's turn. */
-  files?: ChatFile[]
-}
-
-export interface ChatAppProps {
+interface ChatAppProps {
   className?: string
   /** First-run surface, in place of the thread while there are no turns. */
   empty?: ReactNode
   /** The models the composer can be pointed at. */
-  models: PromptModel[]
+  models: Model[]
   /** Controlled model id. */
   model?: string
   onModelChange?: (id: string) => void
-  /** Clear the thread. Omit it and the header keeps only its title. */
-  onReset?: () => void
   /** Re-run an answer. Omit it and the retry control is not drawn. */
   onRetry?: (id: string) => void
   onSend: (message: string, files: ChatFile[]) => void
   onStop?: () => void
   /** An answer is arriving: the composer swaps send for stop and blocks Enter. */
   streaming?: boolean
-  /** The header's title. Omit it and no header is drawn, for a page that brings its own. */
-  title?: string
   turns: ChatTurn[]
 }
-
-/** Reduced motion turns the rail's jump into an instant move: the destination is the
- *  information, and the glide across the thread is not worth the wait it costs. */
-const prefersJump = () =>
-  typeof window !== "undefined" &&
-  Boolean(window.matchMedia?.("(prefers-reduced-motion: reduce)").matches)
 
 /** One control in the actions row: the platform button at its small icon size, with
  *  the label it cannot carry spelled out in a tooltip. */
@@ -170,7 +138,12 @@ const Answer = ({
   return (
     <>
       {turn.reasoning === undefined ? null : (
-        <ThinkingBlock label="Thinking" startedAt={turn.startedAt} streaming={thinking}>
+        <ThinkingBlock
+          duration={turn.thoughtFor}
+          label="Thinking"
+          startedAt={turn.startedAt}
+          streaming={thinking}
+        >
           {turn.reasoning}
         </ThinkingBlock>
       )}
@@ -187,13 +160,10 @@ const Answer = ({
       ) : null}
 
       {waiting ? (
-        <span
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground"
-          role="status"
-        >
+        <output className="inline-flex items-center gap-2 text-sm text-muted-foreground">
           <AgentIndicator state="thinking" />
           <span>Thinking</span>
-        </span>
+        </output>
       ) : null}
 
       {answered && !turn.streaming ? (
@@ -271,6 +241,9 @@ const Thread = ({
   const { viewport } = useConversation()
   const nodes = useRef<(HTMLElement | null)[]>([])
   const focus = useMessageFocus(viewport, nodes)
+  // Reduced motion turns the rail's jump into an instant move: the destination is the
+  // information, and the glide across the thread is not worth the wait it costs.
+  const reduce = useReducedMotion()
 
   // A turn is the only unit a reader navigates a thread by, so the rail is the thread's
   // table of contents: one tick each, and the role as the title of the preview.
@@ -296,7 +269,7 @@ const Thread = ({
     const top =
       box.scrollTop + node.getBoundingClientRect().top - box.getBoundingClientRect().top - 16
     box.scrollTo({
-      behavior: prefersJump() ? "auto" : "smooth",
+      behavior: reduce ? "auto" : "smooth",
       top: Math.max(0, top),
     })
   }
@@ -304,9 +277,7 @@ const Thread = ({
   return (
     <div className="relative flex min-h-0 flex-1">
       <div className="relative flex min-h-0 min-w-0 flex-1">
-        {/* The same gutters as the composer, wide enough for the rail from `sm` up, so the
-            thread lines up with the composer and the rail never covers text. */}
-        <ConversationContent className="min-w-0 px-4 pt-6 pb-16 sm:px-9">
+        <ConversationContent>
           {turns.length === 0 ? (
             <div className="mx-auto my-auto w-full max-w-3xl">{empty}</div>
           ) : (
@@ -351,12 +322,10 @@ export const ChatApp = ({
   model,
   models,
   onModelChange,
-  onReset,
   onRetry,
   onSend,
   onStop,
   streaming = false,
-  title,
   turns,
 }: ChatAppProps) => {
   const [files, setFiles] = useState<PromptAttachment[]>([])
@@ -380,7 +349,7 @@ export const ChatApp = ({
     setFiles((current) => [
       ...current,
       ...chosen.map((file, index) => {
-        const preview = file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined
+        const preview = isPreviewableImage(file.type) ? URL.createObjectURL(file) : undefined
         if (preview) {
           previews.current.push(preview)
         }
@@ -419,17 +388,6 @@ export const ChatApp = ({
       className={cn("flex h-full min-h-0 flex-col bg-background", className)}
       data-slot="chat-app"
     >
-      {title ? (
-        <header className="flex h-14 shrink-0 items-center gap-4 border-b border-border px-4">
-          <h1 className="truncate text-sm font-medium">{title}</h1>
-          {onReset ? (
-            <Button className="ml-auto" onClick={onReset} size="sm" type="button" variant="ghost">
-              New chat
-            </Button>
-          ) : null}
-        </header>
-      ) : null}
-
       <Conversation>
         <Thread empty={empty} onRetry={onRetry} turns={turns} />
       </Conversation>
