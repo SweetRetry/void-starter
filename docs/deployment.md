@@ -8,50 +8,33 @@ Pick the Worker name first: `cloudflare.name` in `apps/web/void.config.ts` (defa
 
 ```sh
 pnpm connect
-pnpm --filter web exec void secret put BETTER_AUTH_SECRET
 pnpm deploy
 ```
 
-Before the first summary, create the AI Gateway: Cloudflare dashboard › AI › AI Gateway › Create gateway, named `void-starter` (or the value of `AI_GATEWAY_ID`). Workers AI rejects a gateway id the account doesn't have, and the summary route answers `503` saying so. One gateway serves both dev and production.
+Before the first answer, create the AI Gateway: Cloudflare dashboard › AI › AI Gateway › Create gateway, named `void-starter` (or the value of `AI_GATEWAY_ID`). Workers AI rejects a gateway id the account doesn't have, and the chat answers `503` saying so. One gateway serves both dev and production.
 
 1. `pnpm connect` runs `void connect --platform cloudflare`. It signs you in to Cloudflare in the browser and records the choice in `apps/web/.void/project.json`. That file is gitignored, so each clone connects once.
-2. `void secret put` stores the secret on the Worker. Generate a value with `openssl rand -base64 32`. Production never reads `.env`.
-3. `pnpm deploy` runs `void deploy`. It builds the app, creates the D1 database and R2 bucket on the first run, binds Workers AI, applies pending D1 migrations and publishes the Worker. It prints the `workers.dev` URL when it's done.
+2. `pnpm deploy` runs `void deploy`. It builds the app, creates the D1 database and R2 bucket on the first run, binds Workers AI, applies pending D1 migrations and publishes the Worker. It prints the `workers.dev` URL when it's done.
 
 `void deploy` writes `apps/web/void.lock.json` with your account id and the resources it created. The starter repo ignores it so no fork inherits someone else's account. In your own app, delete the `apps/web/void.lock.json` line from `.gitignore` and commit the file, so later deploys and teammates reuse the same database and bucket.
 
 ## Secrets and env
 
-`apps/web/env.ts` declares every server value. Locally they come from `apps/web/.env`, which `pnpm dev` creates on first run. In production each one is a Worker secret:
+The app reads no secrets. When you add one, declare it in `apps/web/env.ts` with `defineEnv`, put the local value in `apps/web/.env`, and set the production value with `pnpm --filter web exec void secret put <NAME>`. `void secret list` shows what's set.
 
-| Name                        | Required | Purpose                                 |
-| :-------------------------- | :------- | :-------------------------------------- |
-| `BETTER_AUTH_SECRET`        | yes      | Signs sessions. At least 32 characters. |
-| `AUTH_GITHUB_CLIENT_ID`     | no       | GitHub sign-in, with the secret below   |
-| `AUTH_GITHUB_CLIENT_SECRET` | no       |                                         |
-| `AUTH_GOOGLE_CLIENT_ID`     | no       | Google sign-in, with the secret below   |
-| `AUTH_GOOGLE_CLIENT_SECRET` | no       |                                         |
+## AI Gateway and models
 
-`pnpm --filter web exec void secret list` shows what's set. `void secret sync <file>` uploads a whole dotenv file.
+Workers AI calls name the gateway on every request (`AI_GATEWAY_ID` in `apps/web/src/server/ai.ts`, default `void-starter`). The gateway must exist first; see [First deploy](#first-deploy). Its logs, analytics, caching and rate limits live under AI › AI Gateway in the dashboard.
 
-## OAuth providers
+The model picker lists `@cf/*` models from `apps/web/src/lib/models.ts`. They need no provider key: usage counts against the account's Workers AI allowance, measured in neurons. Some models need access the account may not have; `@cf/google/gemma-3-12b-it`, for one, answered `403` ("This account is not allowed to access") on the account this starter was built with. Try a model in dev before you add it.
 
-A provider's button appears only when both its client id and secret are set.
+### Usage limits
 
-- **GitHub.** Create an OAuth app under Settings › Developer settings. Set the callback URL to `https://<your-domain>/api/auth/callback/github`.
-- **Google.** Create an OAuth client (type: web application) in Google Cloud Console. Add `https://<your-domain>/api/auth/callback/google` as an authorized redirect URI.
-
-For local sign-in, register a second app with `http://localhost:5173` as the base and put its credentials in `apps/web/.env`.
-
-## AI Gateway
-
-Workers AI calls name the gateway on every request (`AI_GATEWAY_ID` in `apps/web/src/server/ai.ts`, default `void-starter`). The gateway must exist first; see [First deploy](#first-deploy). Its logs, analytics, caching and rate limits live under AI › AI Gateway in the dashboard. `ai: { gateway }` in `void.config.ts` uses the same id for provider calls.
-
-To change the model, edit `SUMMARY_MODEL` in the same file.
+There are no accounts, so anyone with the URL can send messages. On the Workers Free plan, Workers AI stops at the daily free allowance and the chat answers `429`. On Workers Paid, usage past the allowance is billed. Set a rate limit on the gateway (AI Gateway › Settings › Rate limiting) before you share the URL widely.
 
 ### Provider models
 
-`ai.provider(name).fetch(path, init)` calls a provider's native API (OpenAI, Google AI Studio, or a custom provider) through the same gateway, with your own key. Store the key as a secret and declare it in `env.ts`:
+`ai.provider(name).fetch(path, init)` calls a provider's native API (OpenAI, Google AI Studio, or a custom provider) through the same gateway, with your own key. Store the key as a secret and declare it in `env.ts`, then set `ai: { gateway }` in `void.config.ts`:
 
 ```sh
 pnpm --filter web exec void secret put OPENAI_API_KEY

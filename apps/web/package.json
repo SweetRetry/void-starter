@@ -12,19 +12,18 @@
     "deploy": "void deploy",
     "db:generate": "void db generate",
     "db:migrate": "void db migrate",
-    "predev": "node scripts/ensure-env.mjs && void db migrate"
+    "predev": "void db migrate"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.9.1",
     "@tanstack/react-router": "^1.170.44",
     "@tanstack/react-start": "^1.169.2",
     "@workspace/ui": "workspace:*",
-    "better-auth": "^1.7.10",
+    "lucide-react": "^1.57.0",
     "motion": "^14.3.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "react-hook-form": "^7.90.0",
     "sonner": "^2.0.8",
+    "streamdown": "^2.7.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {

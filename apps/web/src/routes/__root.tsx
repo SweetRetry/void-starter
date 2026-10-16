@@ -3,11 +3,9 @@ import { Toaster } from "@workspace/ui/components/sonner"
 import { MotionConfig } from "motion/react"
 import type { ReactNode } from "react"
 
-import { getViewer } from "@/server/session.functions"
 import appCss from "../styles.css?url"
 
 export const Route = createRootRoute({
-  beforeLoad: async () => ({ viewer: await getViewer() }),
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -16,7 +14,7 @@ export const Route = createRootRoute({
       {
         name: "description",
         content:
-          "A full-stack starter on Cloudflare: auth, D1, R2 and AI Gateway, deployed with Void.",
+          "A chat app on Cloudflare: D1, R2 and Workers AI through AI Gateway, deployed with Void.",
       },
     ],
     links: [
