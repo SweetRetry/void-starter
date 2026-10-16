@@ -14,7 +14,6 @@ coverage
 .void
 .wrangler
 .void-wrangler.jsonc
-routeTree.gen.ts
 *.tsbuildinfo
 
 # Lefthook local overrides
