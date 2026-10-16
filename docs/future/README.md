@@ -1,16 +1,8 @@
 # Future
 
-记录已识别但尚未决定、或时机未到的计划，避免想法散落在 issue、聊天记录和代码注释里。
+Plans that are known but not decided, or not due yet. They live here so ideas don't scatter across issues, chats and code comments.
 
-适合记录：
-
-- 已知痛点与候选方案，但取舍未定型
-- 依赖外部条件（上游修复、真实流量、第三方能力上线）才能推进的改动
-- 计划中的破坏性变更与迁移路径
-
-约定：
-
-- 一份文档一个主题，命名为 `{topic}.md`。
-- 每份文档写明：问题、候选方案、**触发推进的条件**（哪个信号出现就该做）。
-- 决定做出后，结论移入 `docs/adr/`（长期架构取舍）或 `rules/`（工程约束）；实现完成后删除本目录中的对应条目。
-- 本目录不承载当前生效的约束，Agent 不因这里的条目改变默认行为。
+- One topic per file, named `{topic}.md`.
+- Each file states the problem, the candidate approaches and the signal that should trigger the work.
+- Once decided, the outcome moves into `docs/` (system knowledge) or `rules/` (engineering constraints). The entry here is deleted when the work ships.
+- Nothing here changes current behavior. Agents don't act on these entries.

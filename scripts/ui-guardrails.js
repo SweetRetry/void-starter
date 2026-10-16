@@ -1,10 +1,11 @@
 /**
- * 只扫描两类“无判断余地”的 UI 禁令：
- * - transition-all / transition: all（web-design/animation）
- * - z-index 任意值（z-index）
+ * Scans only for UI bans that leave no room for judgment:
+ * - transition-all / transition: all (DESIGN.md › Motion)
+ * - arbitrary z-index values
  *
- * 圆角与间距的任意值**不在此列**：规则本身有判断余地（公式推导的转角、
- * 行高托底与光学微调值域），扫描会产生误报，交由审查判断。
+ * Arbitrary radii and spacing are deliberately out of scope: those rules involve judgment
+ * (derived corner radii, line-height padding, optical nudges), so a scan would misfire.
+ * Review covers them.
  */
 
 import { execFileSync } from "node:child_process"
@@ -18,22 +19,22 @@ const SELF = "scripts/ui-guardrails.js"
 
 const CHECKS = [
   {
-    rule: "web-design/animation",
+    rule: "design/motion",
     pattern: /\btransition-all\b/g,
-    message: "transition-all 会连带过渡未计划的属性",
-    suggestion: "显式声明属性，如 transition-[transform,opacity]",
+    message: "transition-all also animates properties nobody planned for",
+    suggestion: "Name the properties, such as transition-[transform,opacity]",
   },
   {
-    rule: "web-design/animation",
+    rule: "design/motion",
     pattern: /\btransition\s*:\s*all\b/g,
-    message: "transition: all 会连带过渡未计划的属性",
-    suggestion: "显式声明属性，如 transition: transform, opacity",
+    message: "transition: all also animates properties nobody planned for",
+    suggestion: "Name the properties, such as transition: transform, opacity",
   },
   {
-    rule: "web-design/z-index",
+    rule: "design/z-index",
     pattern: /(?<![\w-])-?z-\[[^\]]+\]/g,
-    message: "z-index 使用任意值，脱离语义阶梯",
-    suggestion: "改用 -z-10 / z-0 / z-10 / z-20 / z-30 / z-40 / z-50",
+    message: "Arbitrary z-index leaves the semantic scale",
+    suggestion: "Use -z-10 / z-0 / z-10 / z-20 / z-30 / z-40 / z-50",
   },
 ]
 
@@ -90,7 +91,7 @@ function main() {
   const allFindings = []
 
   for (const file of listSourceFiles()) {
-    // git ls-files --cached 仍会列出已从工作区删除的文件；删除由 git status 呈现，这里只扫存在的内容。
+    // git ls-files --cached still lists files deleted from the work tree; scan only what exists.
     if (!existsSync(join(repositoryRoot, file))) {
       continue
     }

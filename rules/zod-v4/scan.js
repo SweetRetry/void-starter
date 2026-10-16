@@ -53,7 +53,7 @@ export function scanContent(content, filePath = "inline.ts") {
     const line = lines[lineIndex]
 
     for (const rule of DEPRECATED_PATTERNS) {
-      // 手动 exec 循环依赖 /g 推进 lastIndex；缺少 /g 会零长度匹配并死循环。
+      // The manual exec loop relies on /g to advance lastIndex; without it a zero-length match loops forever.
       if (!rule.pattern.global) {
         throw new Error(`Zod deprecation pattern must be global: ${rule.pattern}`)
       }

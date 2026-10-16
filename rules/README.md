@@ -1,19 +1,19 @@
 # Rules
 
-`rules/` 保存当前有效的专项工程约束，由 [AGENTS.md](../AGENTS.md) 与 [DESIGN.md](../DESIGN.md) 按触发条件路由。
+`rules/` holds the engineering constraints in force, each routed from [AGENTS.md](../AGENTS.md) by its trigger.
 
-## 编写原则
+## Writing a rule
 
-- 写清如何选择、适用边界和必要例外；保留影响判断的参数、对照表与短例子。
-- 取值离散的领域（字号、层级、圆角、时长）列出全部可选值及其用途，并配越界禁令；只有表而没有禁令，规则会退化为参考手册。
-- 每条都应能据此做出一个决定；需要解释机制时写成适用条件（判据），不描述成因。
-- 同一约束只说一次，不在原则、反模式与验收清单中重复。
-- 实现取值查代码与配置，依赖 API 查文档与类型；不复制完整能力清单、教程或 ADR 的决策背景。
-- 精简表达不等于改变约束；修改原则、阈值或适用范围时，应明确说明。
-- 新规则必须有入口引用；单篇用 Markdown 文件，需要配套脚本时才建目录。
+- State how to choose, where the rule applies and its exceptions. Keep the tables, parameters and short examples that change a decision.
+- For a discrete domain (type sizes, radii, durations), list every allowed value with its use, and forbid everything else. A table without the ban becomes a reference manual.
+- Every line should let the reader make one decision. Write a mechanism as a condition, not as history.
+- Say each constraint once.
+- Implementation values live in code and config. API details live in docs and types. Don't copy them here.
+- Shortening a rule must not change it. Changing a threshold or scope is a change to say out loud.
+- Every rule needs an entry in AGENTS.md. One rule is one Markdown file; a directory only when it ships a script.
 
-## 验证边界
+## Verification
 
-- **可执行不变量优先写测试与类型**：能写成可执行不变量的（如 `apps/server` 的 HTTP 测试、`packages/canvas` 的输入校验单测）优先写测试，由类型与测试守护；涉及视觉或业务判断的内容由验收清单与人工评审验证。
-- **自动化源码扫描极度克制**：只在边界明确且误报率低时引入。当前门禁由 `pnpm rules:check` 串联：`zod:check`（Zod 废弃 API）、`ui:check`（`scripts/ui-guardrails.js`：`transition-all` 与 `z-index` 任意值）、`design:check`（oxlint + `@shadcn/lint`：调用点改外观、硬编码色值、任意值，配置见 `.oxlintrc.json`）、`ui:freeze`（元组件字节冻结）。
-- **不写启发式正则扫描**：上述门禁之外的规则（如间距与圆角的光学微调值域、构图与收纳判断、API 响应形态）由验收清单判定，不写启发式正则扫描，避免误报、漏报及诱导“为了过检查而写代码”。
+- **Tests and types first.** An invariant that can run as a test or a type is written as one. Visual and product judgment is checked in review.
+- **Few source scans.** A scan joins `pnpm rules:check` only when its boundary is sharp and false positives are rare. Today: `zod:check` (deprecated Zod APIs), `ui:check` (`transition-all` and arbitrary z-index), `ui:freeze` (the F1 baseline). `vp lint` runs `@shadcn/lint` for call-site restyling, raw colors and arbitrary values.
+- **No heuristic regex.** Everything else (spacing optics, composition, API response shape) is judged against the checklists, so nobody writes code just to pass a scanner.

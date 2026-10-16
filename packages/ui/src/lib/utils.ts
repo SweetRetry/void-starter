@@ -1,6 +1,6 @@
 /**
- * 上游 shadcn/ui 现在的约定是组件直接从 `cn` 包导入（`shadcn migrate cn`）。
- * 本文件只为保留 `@workspace/ui/lib/utils` 这个公开别名，供 `components.json`
- * 的 `aliases.utils` 解析；组件不再经由它导入，也不要在此重新实现合并逻辑。
+ * Upstream shadcn/ui components now import from the `cn` package directly (`shadcn migrate cn`).
+ * This file only keeps the public `@workspace/ui/lib/utils` alias that `components.json`
+ * resolves as `aliases.utils`. Components don't import through it; don't reimplement merging here.
  */
 export { cn } from "cn"

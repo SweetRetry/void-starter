@@ -57,15 +57,15 @@ shadcn names, so every color is a utility (`bg-card`, `text-muted-foreground`). 
 
 Inter (`font-sans`) with optical sizing, which already tightens large text. Sizes are Tailwind's; the theme gives `text-3xl` and up `tracking-tight`, and `text-5xl`/`text-6xl` room between lines, so don't add `tracking-*` or `leading-*` to headings. `font-mono` only for code and data.
 
-| Class | Role |
-|---|---|
-| `text-6xl` / `text-5xl` | Cover / site hero, once per page |
-| `text-4xl` · `text-3xl` · `text-xl` | h1 · h2 · h3 (`font-semibold`) |
-| `text-2xl` | Slide subheads, stat numbers |
-| `text-lg` | Article body, `max-w-2xl` |
-| `text-base` | Site copy |
-| `text-sm` | Interface text; labels `font-medium` |
-| `text-xs` | Metadata, timestamps, column headers, help |
+| Class                               | Role                                       |
+| ----------------------------------- | ------------------------------------------ |
+| `text-6xl` / `text-5xl`             | Cover / site hero, once per page           |
+| `text-4xl` · `text-3xl` · `text-xl` | h1 · h2 · h3 (`font-semibold`)             |
+| `text-2xl`                          | Slide subheads, stat numbers               |
+| `text-lg`                           | Article body, `max-w-2xl`                  |
+| `text-base`                         | Site copy                                  |
+| `text-sm`                           | Interface text; labels `font-medium`       |
+| `text-xs`                           | Metadata, timestamps, column headers, help |
 
 Weights 400, 500, 600 only. `tabular-nums` on numbers that line up; `text-balance` on headings.
 
@@ -109,12 +109,12 @@ Theme utilities only: no arbitrary values (`bg-[#…]`, `text-[13px]`). A new va
 
 ## Surfaces
 
-| Surface | Job | Density |
-|---|---|---|
-| Site | Show the work; left-aligned `text-5xl` claim, one primary button | Low |
-| Articles | Reading; `text-lg` in `max-w-2xl` | Low |
-| Slides | One claim per slide; emerald on one phrase at most | Low |
-| Tools | Get it done; sidebar, `text-sm`, `h-10` rows | Medium |
+| Surface  | Job                                                              | Density |
+| -------- | ---------------------------------------------------------------- | ------- |
+| Site     | Show the work; left-aligned `text-5xl` claim, one primary button | Low     |
+| Articles | Reading; `text-lg` in `max-w-2xl`                                | Low     |
+| Slides   | One claim per slide; emerald on one phrase at most               | Low     |
+| Tools    | Get it done; sidebar, `text-sm`, `h-10` rows                     | Medium  |
 
 A surface that needs other parameters gets `design/<surface>.md`: what it inherits, what it overrides, why.
 
