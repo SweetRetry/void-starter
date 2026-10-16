@@ -1,15 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { createFileRoute, Link, redirect, useRouter } from "@tanstack/react-router"
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router"
 import { Button } from "@workspace/ui/components/button"
 import { FieldGroup } from "@workspace/ui/components/field"
 import { useForm } from "react-hook-form"
-import { toast } from "sonner"
 import { z } from "zod"
 
 import { AuthPage } from "@/components/auth-page"
-import { TextField } from "@/components/text-field"
+import { FormError, PasswordField, TextField } from "@/components/text-field"
 import { authClient } from "@/lib/auth-client"
-import { getSocialProviders } from "@/server/session.functions"
 
 const signUpInput = z.object({
   name: z
@@ -21,17 +19,12 @@ const signUpInput = z.object({
   password: z.string().min(8, "Use at least 8 characters.").max(128, "Use at most 128 characters."),
 })
 
-export const Route = createFileRoute("/sign-up")({
-  beforeLoad: ({ context }) => {
-    if (context.viewer) throw redirect({ to: "/notes" })
-  },
-  loader: () => getSocialProviders(),
+export const Route = createFileRoute("/_auth/sign-up")({
   head: () => ({ meta: [{ title: "Create an account · Void Starter" }] }),
   component: SignUp,
 })
 
 function SignUp() {
-  const providers = Route.useLoaderData()
   const router = useRouter()
   const form = useForm({
     resolver: zodResolver(signUpInput),
@@ -41,7 +34,12 @@ function SignUp() {
   const onSubmit = form.handleSubmit(async (values) => {
     const result = await authClient.signUp.email(values)
     if (result.error) {
-      toast.error(result.error.message ?? "The account wasn't created. Try again in a moment.")
+      form.setError("root.server", {
+        message:
+          result.error.code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL"
+            ? "An account with this email already exists. Sign in instead."
+            : "The account wasn't created. Try again in a moment.",
+      })
       return
     }
     await router.invalidate()
@@ -51,7 +49,7 @@ function SignUp() {
   return (
     <AuthPage
       title="Create an account"
-      providers={providers}
+      description="Notes in D1, files in R2, summaries through AI Gateway."
       footer={
         <>
           Have an account?{" "}
@@ -63,7 +61,13 @@ function SignUp() {
     >
       <form onSubmit={onSubmit} noValidate>
         <FieldGroup>
-          <TextField control={form.control} name="name" label="Name" autoComplete="name" />
+          <TextField
+            control={form.control}
+            name="name"
+            label="Name"
+            autoComplete="name"
+            autoFocus
+          />
           <TextField
             control={form.control}
             name="email"
@@ -71,13 +75,13 @@ function SignUp() {
             type="email"
             autoComplete="email"
           />
-          <TextField
+          <PasswordField
             control={form.control}
             name="password"
             label="Password"
-            type="password"
             autoComplete="new-password"
           />
+          <FormError message={form.formState.errors.root?.server?.message} />
           <Button type="submit" size="lg" disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting ? "Creating account…" : "Create account"}
           </Button>
