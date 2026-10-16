@@ -28,11 +28,12 @@ pnpm deploy   # void deploy: D1, R2, AI binding, migrations
 
 ## 11. Ship
 
-- [ ] The user runs `! pnpm connect` (Cloudflare login).
-- [ ] `void secret put BETTER_AUTH_SECRET`, then the first `pnpm deploy` (confirm with the user first).
+- [x] The user runs `! pnpm connect` (Cloudflare login).
+- [x] `void secret put BETTER_AUTH_SECRET`.
+- [ ] First `pnpm deploy` (confirm with the user first).
 - [ ] Deployed browser check: sign up, create a note, upload, summarize.
-- [ ] Confirm AI Gateway logs show the summary calls, and whether the gateway had to exist first. Update docs/deployment.md.
+- [x] AI Gateway: it must exist first (error 2001). Created `void-starter`; its logs show the summary call from dev. Docs updated.
 - [ ] Confirm through the Cloudflare API that traces are on.
-- [ ] Commit `apps/web/void.lock.json`.
+- [x] `void.lock.json` holds the account id; the template ignores it (docs explain).
 - [ ] Ask before creating the public GitHub repo `SweetRetry/void-starter` and pushing.
 - [ ] The user renames the local directory to `void-starter` last.

@@ -29,7 +29,7 @@ pnpm dev
 
 `pnpm dev` serves <http://localhost:5173> with local D1 and R2. The first run writes `apps/web/.env` with a random `BETTER_AUTH_SECRET`.
 
-Workers AI has no local simulator. To try summaries in dev, connect the clone to Cloudflare once and restart `pnpm dev`:
+Workers AI has no local simulator. To try summaries in dev, connect the clone to Cloudflare once, create an AI Gateway named `void-starter` in the Cloudflare dashboard (AI › AI Gateway), and restart `pnpm dev`:
 
 ```sh
 pnpm connect
@@ -39,6 +39,7 @@ pnpm connect
 
 ```sh
 pnpm connect                                        # once per clone: Cloudflare login
+# once per account: create the AI Gateway "void-starter" in the dashboard
 pnpm --filter web exec void secret put BETTER_AUTH_SECRET
 pnpm deploy
 ```
