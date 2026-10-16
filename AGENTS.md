@@ -30,13 +30,14 @@ Route content by kind: system and usage knowledge → `docs/`; plans not decided
 
 ## Rules by trigger
 
-| Trigger                                             | Read first                                     |
-| :-------------------------------------------------- | :--------------------------------------------- |
-| Using Zod or changing validation                    | `rules/zod-v4/README.md`                       |
-| Frontend UI: screens, layout, motion, components    | [DESIGN.md](DESIGN.md)                         |
-| `/api/*` routes and error responses                 | [docs/api.md](docs/api.md)                     |
-| Env vars, secrets, deploy, AI Gateway               | [docs/deployment.md](docs/deployment.md)       |
-| What a request actually did: logs, traces, `cf-ray` | [docs/observability.md](docs/observability.md) |
+| Trigger                                             | Read first                                                       |
+| :-------------------------------------------------- | :--------------------------------------------------------------- |
+| Void: bindings, CLI, config, deploy                 | `.agents/skills/void/SKILL.md` (ships with the installed `void`) |
+| Using Zod or changing validation                    | `rules/zod-v4/README.md`                                         |
+| Frontend UI: screens, layout, motion, components    | [DESIGN.md](DESIGN.md)                                           |
+| `/api/*` routes and error responses                 | [docs/api.md](docs/api.md)                                       |
+| Env vars, secrets, deploy, AI Gateway               | [docs/deployment.md](docs/deployment.md)                         |
+| What a request actually did: logs, traces, `cf-ray` | [docs/observability.md](docs/observability.md)                   |
 
 ## Tech choices
 

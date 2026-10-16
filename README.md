@@ -22,6 +22,7 @@ A reference feature ties it together: notes with one attachment each and an AI s
 ```sh
 pnpm dlx giget gh:SweetRetry/void-starter my-app
 cd my-app
+git init
 pnpm install
 pnpm dev
 ```
