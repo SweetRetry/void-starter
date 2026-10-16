@@ -47,13 +47,19 @@ const deltas = {
       "transition-colors select-none",
     ],
     ["disabled:opacity-50", "disabled:bg-surface-1 disabled:text-subtle-foreground"],
-    ['default: "bg-primary text-primary-foreground hover:bg-primary/80"', 'default: "bg-primary text-primary-foreground hover:bg-primary-hover"'],
+    [
+      'default: "bg-primary text-primary-foreground hover:bg-primary/80"',
+      'default: "bg-primary text-primary-foreground hover:bg-primary-hover"',
+    ],
     // No outline variant in Retry.
     [
       '        outline:\n          "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",\n',
       "",
     ],
-    ["hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)]", "hover:bg-secondary-hover"],
+    [
+      "hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)]",
+      "hover:bg-secondary-hover",
+    ],
     [
       '"hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50"',
       '"hover:bg-accent hover:text-accent-foreground aria-expanded:bg-accent aria-expanded:text-accent-foreground"',
@@ -68,21 +74,42 @@ const deltas = {
   "dialog.tsx": [
     ['<Button variant="outline" />', '<Button variant="secondary" />'],
     // Dialog sits on bg-background over its overlay, rounded-lg, bordered.
-    ["rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10", "rounded-lg border bg-background p-4 text-sm text-foreground"],
+    [
+      "rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10",
+      "rounded-lg border bg-background p-4 text-sm text-foreground",
+    ],
   ],
   "alert-dialog.tsx": [
     ['variant = "outline",', 'variant = "secondary",'],
-    ["rounded-xl bg-popover p-4 text-popover-foreground ring-1 ring-foreground/10", "rounded-lg border bg-background p-4 text-foreground"],
+    [
+      "rounded-xl bg-popover p-4 text-popover-foreground ring-1 ring-foreground/10",
+      "rounded-lg border bg-background p-4 text-foreground",
+    ],
   ],
   "context-menu.tsx": [...floatingLayer, [" ring-1 ring-foreground/10", ""]],
   "hover-card.tsx": [...floatingLayer, [" ring-1 ring-foreground/10", ""]],
   "menubar.tsx": [...floatingLayer, [" ring-1 ring-foreground/10", ""]],
   "navigation-menu.tsx": [...floatingLayer, [" ring-1 ring-foreground/10", ""]],
-  "pagination.tsx": [['variant={isActive ? "outline" : "ghost"}', 'variant={isActive ? "secondary" : "ghost"}']],
+  "pagination.tsx": [
+    ['variant={isActive ? "outline" : "ghost"}', 'variant={isActive ? "secondary" : "ghost"}'],
+  ],
   "card.tsx": [[" ring-1 ring-foreground/10", ""]],
-  "input.tsx": [...filledField, [" disabled:bg-input/50", " disabled:bg-surface-1"], [" dark:disabled:bg-input/80", ""]],
-  "textarea.tsx": [...filledField, [" disabled:bg-input/50", " disabled:bg-surface-1"], [" dark:disabled:bg-input/80", ""]],
-  "select.tsx": [...filledField, [" dark:hover:bg-input/50", ""], ...floatingLayer, [" ring-1 ring-foreground/10", ""]],
+  "input.tsx": [
+    ...filledField,
+    [" disabled:bg-input/50", " disabled:bg-surface-1"],
+    [" dark:disabled:bg-input/80", ""],
+  ],
+  "textarea.tsx": [
+    ...filledField,
+    [" disabled:bg-input/50", " disabled:bg-surface-1"],
+    [" dark:disabled:bg-input/80", ""],
+  ],
+  "select.tsx": [
+    ...filledField,
+    [" dark:hover:bg-input/50", ""],
+    ...floatingLayer,
+    [" ring-1 ring-foreground/10", ""],
+  ],
   "skeleton.tsx": [["bg-muted", "bg-surface-2"]],
   "tabs.tsx": [
     // Active tab is a tone step; no ring, shadow or input fill.
@@ -93,7 +120,12 @@ const deltas = {
   ],
   "popover.tsx": [...floatingLayer, [" ring-1 ring-foreground/10", ""]],
   "dropdown-menu.tsx": [...floatingLayer, [" ring-1 ring-foreground/10", ""]],
-  "sheet.tsx": [["bg-popover bg-clip-padding text-sm text-popover-foreground", "bg-background bg-clip-padding text-sm text-foreground"]],
+  "sheet.tsx": [
+    [
+      "bg-popover bg-clip-padding text-sm text-popover-foreground",
+      "bg-background bg-clip-padding text-sm text-foreground",
+    ],
+  ],
   "table.tsx": [
     // Rows are separated by a top line; no outer border.
     ['"[&_tr]:border-b"', '"[&_tr]:border-t-0"'],
@@ -111,7 +143,7 @@ const deltas = {
     // Retry is class-driven (.dark on <html>); the toaster reads tokens, not next-themes.
     ['import { useTheme } from "next-themes"\n', ""],
     ['  const { theme = "system" } = useTheme()\n\n', ""],
-    ["      theme={theme as ToasterProps[\"theme\"]}\n", ""],
+    ['      theme={theme as ToasterProps["theme"]}\n', ""],
     ['"--border-radius": "var(--radius)"', '"--border-radius": "calc(var(--radius) - 2px)"'],
   ],
 }

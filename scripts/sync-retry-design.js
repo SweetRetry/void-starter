@@ -35,7 +35,12 @@ const downloads = Object.entries(files).map(([source, target]) => {
   try {
     const content = execFileSync(
       "gh",
-      ["api", "-H", "Accept: application/vnd.github.raw", `repos/${lock.repository}/contents/${source}?ref=${commit}`],
+      [
+        "api",
+        "-H",
+        "Accept: application/vnd.github.raw",
+        `repos/${lock.repository}/contents/${source}?ref=${commit}`,
+      ],
       { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }
     )
     return [target, content]

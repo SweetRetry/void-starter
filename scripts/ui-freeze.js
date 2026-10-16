@@ -38,9 +38,7 @@ function readManifest() {
 function hashFile(relativePath) {
   const content = readFileSync(join(repositoryRoot, relativePath), "utf8")
 
-  return createHash("sha256")
-    .update(content.replace(/\r\n/g, "\n"), "utf8")
-    .digest("hex")
+  return createHash("sha256").update(content.replace(/\r\n/g, "\n"), "utf8").digest("hex")
 }
 
 function listScopeFiles(scope) {
@@ -103,11 +101,7 @@ function writeManifest(hashes) {
 
   const manifest = { $comment: MANIFEST_COMMENT, scope: readManifest().scope, files }
 
-  writeFileSync(
-    join(repositoryRoot, MANIFEST),
-    `${JSON.stringify(manifest, null, 2)}\n`,
-    "utf8"
-  )
+  writeFileSync(join(repositoryRoot, MANIFEST), `${JSON.stringify(manifest, null, 2)}\n`, "utf8")
 }
 
 function reportDrift(changes) {

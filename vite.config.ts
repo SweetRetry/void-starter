@@ -15,6 +15,7 @@ export default defineConfig({
       "**/db/migrations/**",
       "packages/ui/src/components/**",
       "packages/ui/src/styles/retry.css",
+      "packages/ui/frozen.manifest.json",
       "packages/ui/retry/**",
       "pnpm-lock.yaml",
     ],

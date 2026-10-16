@@ -1,8 +1,14 @@
 {
   "name": "@workspace/ui",
   "version": "0.0.0",
-  "type": "module",
   "private": true,
+  "type": "module",
+  "exports": {
+    "./globals.css": "./src/styles/globals.css",
+    "./lib/*": "./src/lib/*.ts",
+    "./hooks/*": "./src/hooks/*.ts",
+    "./components/*": "./src/components/*.tsx"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
@@ -29,11 +35,5 @@
     "@workspace/typescript-config": "workspace:*",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2"
-  },
-  "exports": {
-    "./globals.css": "./src/styles/globals.css",
-    "./lib/*": "./src/lib/*.ts",
-    "./hooks/*": "./src/hooks/*.ts",
-    "./components/*": "./src/components/*.tsx"
   }
 }
