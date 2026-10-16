@@ -1,35 +1,18 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "ignoreBinaries": ["peers"],
   "ignoreWorkspaces": ["packages/ui"],
-  "ignore": ["scripts/**", "rules/**"],
+  "ignore": ["scripts/**", "rules/**", "**/routeTree.gen.ts"],
   "workspaces": {
+    ".": {
+      "entry": ["vite.config.ts"]
+    },
     "apps/web": {
-      "entry": ["app/**/*.{ts,tsx}", "lib/**/*.ts"],
-      "project": ["**/*.{ts,tsx}"]
-    },
-    "apps/server": {
-      "entry": ["src/auth-config.ts"],
-      "project": ["src/**/*.ts"],
-      "drizzle": false
-    },
-    "packages/request": {
-      "project": ["src/**/*.ts"]
-    },
-    "packages/logger": {
-      "project": ["src/**/*.ts"]
-    },
-    "packages/observability": {
-      "project": ["src/**/*.ts"]
-    },
-    "packages/tracing": {
-      "project": ["src/**/*.ts"]
+      "entry": ["src/router.tsx", "src/routes/**/*.{ts,tsx}", "db/schema.ts", "env.ts", "void.config.ts"],
+      "project": ["src/**/*.{ts,tsx}", "db/**/*.ts", "*.ts"]
     },
     "packages/typescript-config": {
       "entry": [],
       "project": ["*.json"]
     }
-  },
-  "ignoreDependencies": ["@tailwindcss/postcss", "pino-pretty"],
-  "ignoreUnresolved": ["next"]
+  }
 }
