@@ -10,141 +10,90 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AppRouteImport } from './routes/_app'
-import { Route as AuthRouteImport } from './routes/_auth'
-import { Route as AuthSignInRouteImport } from './routes/_auth/sign-in'
-import { Route as AuthSignUpRouteImport } from './routes/_auth/sign-up'
-import { Route as AppNotesIndexRouteImport } from './routes/_app/notes/index'
-import { Route as AppNotesNoteIdRouteImport } from './routes/_app/notes/$noteId'
-import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
-import { Route as ApiNotesNoteIdAttachmentRouteImport } from './routes/api/notes/$noteId/attachment'
-import { Route as ApiNotesNoteIdSummaryRouteImport } from './routes/api/notes/$noteId/summary'
+import { Route as CChatIdRouteImport } from './routes/c/$chatId'
+import { Route as ApiChatsChatIdAnswerRouteImport } from './routes/api/chats/$chatId/answer'
+import { Route as ApiChatsChatIdMessagesRouteImport } from './routes/api/chats/$chatId/messages'
+import { Route as ApiChatsChatIdFilesFileIdRouteImport } from './routes/api/chats/$chatId/files/$fileId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppRoute = AppRouteImport.update({
-  id: '/_app',
+const CChatIdRoute = CChatIdRouteImport.update({
+  id: '/c/$chatId',
+  path: '/c/$chatId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/_auth',
+const ApiChatsChatIdAnswerRoute = ApiChatsChatIdAnswerRouteImport.update({
+  id: '/api/chats/$chatId/answer',
+  path: '/api/chats/$chatId/answer',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthSignInRoute = AuthSignInRouteImport.update({
-  id: '/sign-in',
-  path: '/sign-in',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthSignUpRoute = AuthSignUpRouteImport.update({
-  id: '/sign-up',
-  path: '/sign-up',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AppNotesIndexRoute = AppNotesIndexRouteImport.update({
-  id: '/notes/',
-  path: '/notes/',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppNotesNoteIdRoute = AppNotesNoteIdRouteImport.update({
-  id: '/notes/$noteId',
-  path: '/notes/$noteId',
-  getParentRoute: () => AppRoute,
-} as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
+const ApiChatsChatIdMessagesRoute = ApiChatsChatIdMessagesRouteImport.update({
+  id: '/api/chats/$chatId/messages',
+  path: '/api/chats/$chatId/messages',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiNotesNoteIdAttachmentRoute =
-  ApiNotesNoteIdAttachmentRouteImport.update({
-    id: '/api/notes/$noteId/attachment',
-    path: '/api/notes/$noteId/attachment',
+const ApiChatsChatIdFilesFileIdRoute =
+  ApiChatsChatIdFilesFileIdRouteImport.update({
+    id: '/api/chats/$chatId/files/$fileId',
+    path: '/api/chats/$chatId/files/$fileId',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiNotesNoteIdSummaryRoute = ApiNotesNoteIdSummaryRouteImport.update({
-  id: '/api/notes/$noteId/summary',
-  path: '/api/notes/$noteId/summary',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/sign-in': typeof AuthSignInRoute
-  '/sign-up': typeof AuthSignUpRoute
-  '/notes/$noteId': typeof AppNotesNoteIdRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-  '/notes/': typeof AppNotesIndexRoute
-  '/api/notes/$noteId/attachment': typeof ApiNotesNoteIdAttachmentRoute
-  '/api/notes/$noteId/summary': typeof ApiNotesNoteIdSummaryRoute
+  '/c/$chatId': typeof CChatIdRoute
+  '/api/chats/$chatId/answer': typeof ApiChatsChatIdAnswerRoute
+  '/api/chats/$chatId/messages': typeof ApiChatsChatIdMessagesRoute
+  '/api/chats/$chatId/files/$fileId': typeof ApiChatsChatIdFilesFileIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/sign-in': typeof AuthSignInRoute
-  '/sign-up': typeof AuthSignUpRoute
-  '/notes/$noteId': typeof AppNotesNoteIdRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-  '/notes': typeof AppNotesIndexRoute
-  '/api/notes/$noteId/attachment': typeof ApiNotesNoteIdAttachmentRoute
-  '/api/notes/$noteId/summary': typeof ApiNotesNoteIdSummaryRoute
+  '/c/$chatId': typeof CChatIdRoute
+  '/api/chats/$chatId/answer': typeof ApiChatsChatIdAnswerRoute
+  '/api/chats/$chatId/messages': typeof ApiChatsChatIdMessagesRoute
+  '/api/chats/$chatId/files/$fileId': typeof ApiChatsChatIdFilesFileIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/_app': typeof AppRouteWithChildren
-  '/_auth': typeof AuthRouteWithChildren
-  '/_auth/sign-in': typeof AuthSignInRoute
-  '/_auth/sign-up': typeof AuthSignUpRoute
-  '/_app/notes/$noteId': typeof AppNotesNoteIdRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-  '/_app/notes/': typeof AppNotesIndexRoute
-  '/api/notes/$noteId/attachment': typeof ApiNotesNoteIdAttachmentRoute
-  '/api/notes/$noteId/summary': typeof ApiNotesNoteIdSummaryRoute
+  '/c/$chatId': typeof CChatIdRoute
+  '/api/chats/$chatId/answer': typeof ApiChatsChatIdAnswerRoute
+  '/api/chats/$chatId/messages': typeof ApiChatsChatIdMessagesRoute
+  '/api/chats/$chatId/files/$fileId': typeof ApiChatsChatIdFilesFileIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/sign-in'
-    | '/sign-up'
-    | '/notes/$noteId'
-    | '/api/auth/$'
-    | '/notes/'
-    | '/api/notes/$noteId/attachment'
-    | '/api/notes/$noteId/summary'
+    | '/c/$chatId'
+    | '/api/chats/$chatId/answer'
+    | '/api/chats/$chatId/messages'
+    | '/api/chats/$chatId/files/$fileId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/sign-in'
-    | '/sign-up'
-    | '/notes/$noteId'
-    | '/api/auth/$'
-    | '/notes'
-    | '/api/notes/$noteId/attachment'
-    | '/api/notes/$noteId/summary'
+    | '/c/$chatId'
+    | '/api/chats/$chatId/answer'
+    | '/api/chats/$chatId/messages'
+    | '/api/chats/$chatId/files/$fileId'
   id:
     | '__root__'
     | '/'
-    | '/_app'
-    | '/_auth'
-    | '/_auth/sign-in'
-    | '/_auth/sign-up'
-    | '/_app/notes/$noteId'
-    | '/api/auth/$'
-    | '/_app/notes/'
-    | '/api/notes/$noteId/attachment'
-    | '/api/notes/$noteId/summary'
+    | '/c/$chatId'
+    | '/api/chats/$chatId/answer'
+    | '/api/chats/$chatId/messages'
+    | '/api/chats/$chatId/files/$fileId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AppRoute: typeof AppRouteWithChildren
-  AuthRoute: typeof AuthRouteWithChildren
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-  ApiNotesNoteIdAttachmentRoute: typeof ApiNotesNoteIdAttachmentRoute
-  ApiNotesNoteIdSummaryRoute: typeof ApiNotesNoteIdSummaryRoute
+  CChatIdRoute: typeof CChatIdRoute
+  ApiChatsChatIdAnswerRoute: typeof ApiChatsChatIdAnswerRoute
+  ApiChatsChatIdMessagesRoute: typeof ApiChatsChatIdMessagesRoute
+  ApiChatsChatIdFilesFileIdRoute: typeof ApiChatsChatIdFilesFileIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -156,103 +105,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app': {
-      id: '/_app'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AppRouteImport
+    '/c/$chatId': {
+      id: '/c/$chatId'
+      path: '/c/$chatId'
+      fullPath: '/c/$chatId'
+      preLoaderRoute: typeof CChatIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth': {
-      id: '/_auth'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthRouteImport
+    '/api/chats/$chatId/answer': {
+      id: '/api/chats/$chatId/answer'
+      path: '/api/chats/$chatId/answer'
+      fullPath: '/api/chats/$chatId/answer'
+      preLoaderRoute: typeof ApiChatsChatIdAnswerRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/sign-in': {
-      id: '/_auth/sign-in'
-      path: '/sign-in'
-      fullPath: '/sign-in'
-      preLoaderRoute: typeof AuthSignInRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/sign-up': {
-      id: '/_auth/sign-up'
-      path: '/sign-up'
-      fullPath: '/sign-up'
-      preLoaderRoute: typeof AuthSignUpRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_app/notes/': {
-      id: '/_app/notes/'
-      path: '/notes'
-      fullPath: '/notes/'
-      preLoaderRoute: typeof AppNotesIndexRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/notes/$noteId': {
-      id: '/_app/notes/$noteId'
-      path: '/notes/$noteId'
-      fullPath: '/notes/$noteId'
-      preLoaderRoute: typeof AppNotesNoteIdRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
+    '/api/chats/$chatId/messages': {
+      id: '/api/chats/$chatId/messages'
+      path: '/api/chats/$chatId/messages'
+      fullPath: '/api/chats/$chatId/messages'
+      preLoaderRoute: typeof ApiChatsChatIdMessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/notes/$noteId/attachment': {
-      id: '/api/notes/$noteId/attachment'
-      path: '/api/notes/$noteId/attachment'
-      fullPath: '/api/notes/$noteId/attachment'
-      preLoaderRoute: typeof ApiNotesNoteIdAttachmentRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/notes/$noteId/summary': {
-      id: '/api/notes/$noteId/summary'
-      path: '/api/notes/$noteId/summary'
-      fullPath: '/api/notes/$noteId/summary'
-      preLoaderRoute: typeof ApiNotesNoteIdSummaryRouteImport
+    '/api/chats/$chatId/files/$fileId': {
+      id: '/api/chats/$chatId/files/$fileId'
+      path: '/api/chats/$chatId/files/$fileId'
+      fullPath: '/api/chats/$chatId/files/$fileId'
+      preLoaderRoute: typeof ApiChatsChatIdFilesFileIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface AppRouteChildren {
-  AppNotesNoteIdRoute: typeof AppNotesNoteIdRoute
-  AppNotesIndexRoute: typeof AppNotesIndexRoute
-}
-
-const AppRouteChildren: AppRouteChildren = {
-  AppNotesNoteIdRoute: AppNotesNoteIdRoute,
-  AppNotesIndexRoute: AppNotesIndexRoute,
-}
-
-const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
-
-interface AuthRouteChildren {
-  AuthSignInRoute: typeof AuthSignInRoute
-  AuthSignUpRoute: typeof AuthSignUpRoute
-}
-
-const AuthRouteChildren: AuthRouteChildren = {
-  AuthSignInRoute: AuthSignInRoute,
-  AuthSignUpRoute: AuthSignUpRoute,
-}
-
-const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AppRoute: AppRouteWithChildren,
-  AuthRoute: AuthRouteWithChildren,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-  ApiNotesNoteIdAttachmentRoute: ApiNotesNoteIdAttachmentRoute,
-  ApiNotesNoteIdSummaryRoute: ApiNotesNoteIdSummaryRoute,
+  CChatIdRoute: CChatIdRoute,
+  ApiChatsChatIdAnswerRoute: ApiChatsChatIdAnswerRoute,
+  ApiChatsChatIdMessagesRoute: ApiChatsChatIdMessagesRoute,
+  ApiChatsChatIdFilesFileIdRoute: ApiChatsChatIdFilesFileIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

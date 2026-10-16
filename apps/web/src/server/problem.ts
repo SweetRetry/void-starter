@@ -8,10 +8,8 @@
 
 const problems = {
   VALIDATION_ERROR: { status: 400, title: "Bad Request" },
-  UNAUTHORIZED: { status: 401, title: "Unauthorized" },
   NOT_FOUND: { status: 404, title: "Not Found" },
   PAYLOAD_TOO_LARGE: { status: 413, title: "Content Too Large" },
-  UNSUPPORTED_MEDIA_TYPE: { status: 415, title: "Unsupported Media Type" },
   TOO_MANY_REQUESTS: { status: 429, title: "Too Many Requests" },
   INTERNAL_SERVER_ERROR: { status: 500, title: "Internal Server Error" },
   SERVICE_UNAVAILABLE: { status: 503, title: "Service Unavailable" },

@@ -1,21 +1,20 @@
 # Void Starter
 
-A full-stack TypeScript starter that deploys to your own Cloudflare account with [Void](https://github.com/voidzero-dev/void). One Worker serves the app, with auth, a D1 database, R2 uploads and Workers AI through AI Gateway.
+A full-stack TypeScript starter that deploys to your own Cloudflare account with [Void](https://github.com/voidzero-dev/void). One Worker serves a chat app: messages in D1, files in R2, and answers streamed from Workers AI through AI Gateway.
 
 > Void Starter is an independent project. It is not an official Void or Cloudflare template.
 
 ## What you get
 
 - **App.** TanStack Start (React 19, SSR, server functions, file routes) running in Void's framework mode.
-- **Auth.** Better Auth on D1. Email and password work with zero config. GitHub and Google turn on when their credentials exist.
 - **Data.** D1 through Drizzle, with migrations Void applies on deploy.
-- **Files.** R2 through `void/storage`.
-- **AI.** Workers AI through AI Gateway, streamed to the browser.
-- **UI.** Tailwind CSS v4, shadcn/ui on Base UI, and the Retry design language ([DESIGN.md](DESIGN.md)).
+- **Files.** R2 through `void/storage`, read for the model with `ai.toMarkdown()`.
+- **AI.** Workers AI models on Cloudflare's free daily allowance, so no provider key. Every call goes through AI Gateway, and reasoning models stream their thinking.
+- **UI.** Tailwind CSS v4, shadcn/ui on Base UI, the Retry design language ([DESIGN.md](DESIGN.md)), and the chat block from [Motif](https://motif.sweetretry.com).
 - **Errors.** RFC 9457 problem+json on every `/api/*` route ([docs/api.md](docs/api.md)).
 - **Gates.** Vite+ (format, lint, test), typecheck, knip and project rules behind one command, `pnpm verify`.
 
-A reference feature ties it together: notes with one attachment each and an AI summary. Each Cloudflare product is its own slice, so you can delete what you don't need.
+There are no accounts. Each chat lives at a random URL, and whoever has the link can read it. Add auth before you put anything private in it.
 
 ## Quick start
 
@@ -27,9 +26,9 @@ pnpm install
 pnpm dev
 ```
 
-`pnpm dev` serves <http://localhost:5173> with local D1 and R2. The first run writes `apps/web/.env` with a random `BETTER_AUTH_SECRET`.
+`pnpm dev` applies migrations to local D1 and serves <http://localhost:5173> with local D1 and R2.
 
-Workers AI has no local simulator. To try summaries in dev, connect the clone to Cloudflare once, create an AI Gateway named `void-starter` in the Cloudflare dashboard (AI › AI Gateway), and restart `pnpm dev`:
+Workers AI has no local simulator. To get answers in dev, connect the clone to Cloudflare once, create an AI Gateway named `void-starter` in the Cloudflare dashboard (AI › AI Gateway), and restart `pnpm dev`:
 
 ```sh
 pnpm connect
@@ -38,13 +37,12 @@ pnpm connect
 ## Deploy
 
 ```sh
-pnpm connect                                        # once per clone: Cloudflare login
+pnpm connect   # once per clone: Cloudflare login
 # once per account: create the AI Gateway "void-starter" in the dashboard
-pnpm --filter web exec void secret put BETTER_AUTH_SECRET
 pnpm deploy
 ```
 
-`void deploy` builds the app, provisions D1, R2 and the AI binding, applies migrations and publishes the Worker. See [docs/deployment.md](docs/deployment.md) for OAuth providers, AI Gateway, provider models and rollback.
+`void deploy` builds the app, provisions D1, R2 and the AI binding, applies migrations and publishes the Worker. See [docs/deployment.md](docs/deployment.md) for AI Gateway, models, limits and rollback.
 
 ## Layout
 
@@ -69,7 +67,7 @@ pnpm verify
 
 - [docs/architecture.md](docs/architecture.md) explains the stack and why each choice was made.
 - [docs/api.md](docs/api.md) defines the error contract and every problem type.
-- [docs/deployment.md](docs/deployment.md) covers secrets, OAuth, AI and rollback.
+- [docs/deployment.md](docs/deployment.md) covers AI Gateway, models, usage limits and rollback.
 - [docs/observability.md](docs/observability.md) covers logs and traces, locally and in production.
 - [AGENTS.md](AGENTS.md) is the entry point for coding agents.
 

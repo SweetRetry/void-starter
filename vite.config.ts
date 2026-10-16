@@ -35,7 +35,17 @@ export default defineConfig({
       "shadcn/no-inline-styles": "error",
       "shadcn/no-arbitrary-values": ["error", { allow: ["layout"] }],
     },
-    ignorePatterns: ["packages/ui/src/components/**", "**/routeTree.gen.ts", "**/.void/**"],
+    ignorePatterns: [
+      "packages/ui/src/components/**",
+      // Motif registry code (motif.sweetretry.com), vendored by `shadcn add`-style import. Like
+      // upstream shadcn/ui, it is linted where it comes from, not here.
+      "apps/web/src/components/{agents,scroll-rail}/**",
+      "apps/web/src/components/ui/**",
+      "apps/web/src/components/chat/chat-app.tsx",
+      "apps/web/src/lib/{ease.ts,hooks/**}",
+      "**/routeTree.gen.ts",
+      "**/.void/**",
+    ],
   },
   test: {
     projects: ["apps/*", "packages/*"],

@@ -2,9 +2,8 @@ import { sql } from "void/db"
 import { index, integer, sqliteTable, text } from "void/schema-d1"
 
 /**
- * One Drizzle schema for the whole app. The four auth tables follow Better Auth 1.7's
- * sqlite layout (generated with `npx auth generate`); `note` is the reference feature.
- * Change it, then run `pnpm db:generate` and commit the SQL in db/migrations.
+ * A chat is anonymous: its id is the only key, and whoever holds the link can read it.
+ * Change the schema, then run `pnpm db:generate` and commit the SQL in db/migrations.
  */
 
 const createdAt = () =>
@@ -12,94 +11,43 @@ const createdAt = () =>
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
     .notNull()
 
-const updatedAt = () =>
-  integer("updated_at", { mode: "timestamp_ms" })
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-    .$onUpdate(() => new Date())
-    .notNull()
-
-export const user = sqliteTable("user", {
+export const chat = sqliteTable("chat", {
   id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull().unique(),
-  emailVerified: integer("email_verified", { mode: "boolean" }).default(false).notNull(),
-  image: text("image"),
   createdAt: createdAt(),
-  updatedAt: updatedAt(),
 })
 
-export const session = sqliteTable(
-  "session",
+export const message = sqliteTable(
+  "message",
   {
     id: text("id").primaryKey(),
-    expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
-    token: text("token").notNull().unique(),
-    createdAt: createdAt(),
-    updatedAt: updatedAt(),
-    ipAddress: text("ip_address"),
-    userAgent: text("user_agent"),
-    userId: text("user_id")
+    chatId: text("chat_id")
       .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
+      .references(() => chat.id, { onDelete: "cascade" }),
+    role: text("role", { enum: ["user", "assistant"] }).notNull(),
+    content: text("content").notNull(),
+    /** The reasoning a model wrote before its answer, when it wrote one. */
+    reasoning: text("reasoning"),
+    /** The model that wrote an assistant turn. */
+    model: text("model"),
+    createdAt: createdAt(),
   },
-  (table) => [index("session_userId_idx").on(table.userId)]
+  (table) => [index("message_chat_idx").on(table.chatId, table.createdAt)]
 )
 
-export const account = sqliteTable(
-  "account",
+/** A file on a user turn. The bytes live in R2 under `key`; `text` is what the model reads. */
+export const attachment = sqliteTable(
+  "attachment",
   {
     id: text("id").primaryKey(),
-    accountId: text("account_id").notNull(),
-    providerId: text("provider_id").notNull(),
-    userId: text("user_id")
+    messageId: text("message_id")
       .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    accessToken: text("access_token"),
-    refreshToken: text("refresh_token"),
-    idToken: text("id_token"),
-    accessTokenExpiresAt: integer("access_token_expires_at", { mode: "timestamp_ms" }),
-    refreshTokenExpiresAt: integer("refresh_token_expires_at", { mode: "timestamp_ms" }),
-    scope: text("scope"),
-    password: text("password"),
-    createdAt: createdAt(),
-    updatedAt: updatedAt(),
+      .references(() => message.id, { onDelete: "cascade" }),
+    chatId: text("chat_id").notNull(),
+    key: text("key").notNull(),
+    name: text("name").notNull(),
+    type: text("type").notNull(),
+    size: integer("size").notNull(),
+    text: text("text"),
   },
-  (table) => [index("account_userId_idx").on(table.userId)]
-)
-
-export const verification = sqliteTable(
-  "verification",
-  {
-    id: text("id").primaryKey(),
-    identifier: text("identifier").notNull(),
-    value: text("value").notNull(),
-    expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
-    createdAt: createdAt(),
-    updatedAt: updatedAt(),
-  },
-  (table) => [index("verification_identifier_idx").on(table.identifier)]
-)
-
-export const note = sqliteTable(
-  "note",
-  {
-    id: text("id")
-      .primaryKey()
-      .$defaultFn(() => crypto.randomUUID()),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    title: text("title").notNull(),
-    body: text("body").notNull().default(""),
-    /** R2 object key; null until a file is attached. */
-    attachmentKey: text("attachment_key"),
-    attachmentName: text("attachment_name"),
-    attachmentType: text("attachment_type"),
-    attachmentSize: integer("attachment_size"),
-    /** Last AI summary, saved when a stream completes. */
-    summary: text("summary"),
-    createdAt: createdAt(),
-    updatedAt: updatedAt(),
-  },
-  (table) => [index("note_userId_updatedAt_idx").on(table.userId, table.updatedAt)]
+  (table) => [index("attachment_message_idx").on(table.messageId)]
 )

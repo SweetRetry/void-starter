@@ -7,10 +7,11 @@
       "ignoreDependencies": ["vite"]
     },
     "apps/web": {
-      "entry": ["src/routes/**/*.{ts,tsx}", "db/schema.ts", "env.ts", "void.config.ts"],
+      "entry": ["src/routes/**/*.{ts,tsx}", "db/schema.ts", "void.config.ts"],
       "project": ["src/**/*.{ts,tsx}", "db/**/*.ts", "*.ts"],
       "ignoreDependencies": ["cloudflare", "tailwindcss"],
-      "vite": false
+      "vite": false,
+      "ignore": ["src/components/{agents,scroll-rail,ui}/**", "src/lib/{ease.ts,hooks/**}"]
     },
     "packages/typescript-config": {
       "entry": [],

@@ -24,6 +24,27 @@ describe("createAiStreamParser", () => {
     ])
   })
 
+  it("splits reasoning from the answer and ignores the lagging response field", () => {
+    const parser = createAiStreamParser()
+    expect(
+      parser.push(
+        'data: {"choices":[{"delta":{"reasoning_content":"17 times 3"}}]}\n\n' +
+          'data: {"choices":[{"delta":{"content":"51"}}],"response":"5"}\n\n'
+      )
+    ).toEqual([
+      { type: "reasoning", text: "17 times 3" },
+      { type: "delta", text: "51" },
+    ])
+  })
+
+  it("keeps a digit that arrives as a JSON number", () => {
+    const parser = createAiStreamParser()
+    expect(parser.push('data: {"response":"It is "}\n\ndata: {"response":51}\n\n')).toEqual([
+      { type: "delta", text: "It is " },
+      { type: "delta", text: "51" },
+    ])
+  })
+
   it("turns Void's terminal events into limit and error", () => {
     const parser = createAiStreamParser()
     expect(
