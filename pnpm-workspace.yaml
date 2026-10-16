@@ -1,22 +1,46 @@
 packages:
   - "apps/*"
   - "packages/*"
-peerDependencyRules:
-  allowedVersions:
-    "@emoji-mart/react@1>react": "^19.0.0"
-    "@typescript-eslint/parser@8>typescript": "^7.0.0"
-    "@typescript-eslint/typescript-estree@8>typescript": "^7.0.0"
-    "@typescript-eslint/tsconfig-utils@8>typescript": "^7.0.0"
-    "@typescript-eslint/project-service@8>typescript": "^7.0.0"
-  # vitest 自身依赖 vite（^6 || ^7 || ^8），但部分 importer 未被记成已解析的 peer；
-  # 运行时由 vitest 自身的依赖满足，不需要每个 package 再声明一次 vite
-  ignoreMissing:
-    - vite
 allowBuilds:
   better-sqlite3: false
-  cpu-features: false
   esbuild: true
   lefthook: true
-  protobufjs: true
   sharp: false
-  ssh2: false
+  workerd: true
+minimumReleaseAgeExclude:
+  - "@better-auth/core@1.7.10"
+  - "@better-auth/drizzle-adapter@1.7.10"
+  - "@better-auth/kysely-adapter@1.7.10"
+  - "@better-auth/memory-adapter@1.7.10"
+  - "@better-auth/mongo-adapter@1.7.10"
+  - "@better-auth/prisma-adapter@1.7.10"
+  - "@better-auth/telemetry@1.7.10"
+  - "@vitest/browser-preview@5.0.5"
+  - "@vitest/browser@5.0.5"
+  - "@vitest/mocker@5.0.5"
+  - "@vitest/pretty-format@5.0.5"
+  - "@vitest/snapshot@5.0.5"
+  - "@vitest/spy@5.0.5"
+  - "@vitest/ui@5.0.5"
+  - "@vitest/utils@5.0.5"
+  - "@void/deploy-cloudflare@1.1.11"
+  - "@void/deploy-core@1.1.11"
+  - "@void/edge@1.1.11"
+  - "@void/isr@1.1.11"
+  - "@void/platform@1.1.11"
+  - "@voidzero-dev/vite-plus-core@1.3.0"
+  - "@voidzero-dev/vite-plus-darwin-arm64@1.3.0"
+  - "@voidzero-dev/vite-plus-darwin-x64@1.3.0"
+  - "@voidzero-dev/vite-plus-linux-arm64-gnu@1.3.0"
+  - "@voidzero-dev/vite-plus-linux-arm64-musl@1.3.0"
+  - "@voidzero-dev/vite-plus-linux-x64-gnu@1.3.0"
+  - "@voidzero-dev/vite-plus-linux-x64-musl@1.3.0"
+  - "@voidzero-dev/vite-plus-win32-arm64-msvc@1.3.0"
+  - "@voidzero-dev/vite-plus-win32-x64-msvc@1.3.0"
+  - better-auth@1.7.10
+  - framer-motion@14.3.0
+  - motion-dom@14.3.0
+  - motion@14.3.0
+  - vite-plus@1.3.0
+  - vitest@5.0.5
+  - void@1.1.11
