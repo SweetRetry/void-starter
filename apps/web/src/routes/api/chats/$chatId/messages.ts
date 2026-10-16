@@ -12,7 +12,7 @@ import { problemResponse } from "@/server/problem"
 export const Route = createFileRoute("/api/chats/$chatId/messages")({
   server: {
     handlers: {
-      POST: chatRoute(async ({ request, params }) => {
+      POST: chatRoute(async ({ request, params, visitor }) => {
         const declared = Number(request.headers.get("content-length") ?? 0)
         if (declared > MAX_FILES * MAX_FILE_BYTES + 64 * 1024) {
           return problemResponse(request, "PAYLOAD_TOO_LARGE", "Files can be up to 5 MB each.")
@@ -47,7 +47,7 @@ export const Route = createFileRoute("/api/chats/$chatId/messages")({
           )
         }
 
-        await saveUserTurn(params.chatId, input.data.content, files)
+        await saveUserTurn(params.chatId, visitor, input.data.content, files)
         return streamAnswer(request, params.chatId, input.data.model)
       }),
     },

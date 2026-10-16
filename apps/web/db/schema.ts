@@ -2,8 +2,9 @@ import { sql } from "void/db"
 import { index, integer, sqliteTable, text } from "void/schema-d1"
 
 /**
- * A chat is anonymous: its id is the only key, and whoever holds the link can read it.
- * Change the schema, then run `pnpm db:generate` and commit the SQL in db/migrations.
+ * There are no accounts. A visitor is a random id in a cookie (src/server/visitor.server.ts), and
+ * a chat belongs to the visitor who started it. Change the schema, then run `pnpm db:generate`
+ * and commit the SQL in db/migrations.
  */
 
 const createdAt = () =>
@@ -11,10 +12,22 @@ const createdAt = () =>
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
     .notNull()
 
-export const chat = sqliteTable("chat", {
-  id: text("id").primaryKey(),
-  createdAt: createdAt(),
-})
+export const chat = sqliteTable(
+  "chat",
+  {
+    id: text("id").primaryKey(),
+    // Chats from before visitors existed keep "", which no cookie matches.
+    visitorId: text("visitor_id").notNull().default(""),
+    /** The first message, cut short, as the session list shows it. */
+    title: text("title").notNull().default(""),
+    createdAt: createdAt(),
+    /** When the latest user turn arrived; the session list sorts by it. */
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .notNull(),
+  },
+  (table) => [index("chat_visitor_idx").on(table.visitorId, table.updatedAt)]
+)
 
 export const message = sqliteTable(
   "message",

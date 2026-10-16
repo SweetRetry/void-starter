@@ -34,4 +34,10 @@ export interface Turn {
   files?: TurnFile[]
 }
 
+/** One of the visitor's chats, as the sidebar lists it. */
+export interface Session {
+  id: string
+  title: string
+}
+
 export const fileUrl = (chat: string, file: string) => `/api/chats/${chat}/files/${file}`

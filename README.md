@@ -14,7 +14,7 @@ A full-stack TypeScript starter that deploys to your own Cloudflare account with
 - **Errors.** RFC 9457 problem+json on every `/api/*` route ([docs/api.md](docs/api.md)).
 - **Gates.** Vite+ (format, lint, test), typecheck, knip and project rules behind one command, `pnpm verify`.
 
-There are no accounts. Each chat lives at a random URL, and whoever has the link can read it. Add auth before you put anything private in it.
+There are no accounts. A cookie gives each browser a random visitor id, and the sidebar lists that visitor's chats; other browsers get a 404. Add auth before you put anything private in it.
 
 ## Quick start
 

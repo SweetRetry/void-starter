@@ -88,6 +88,7 @@ export interface ChatAppProps {
   onStop?: () => void
   /** An answer is arriving: the composer swaps send for stop and blocks Enter. */
   streaming?: boolean
+  /** The header's title. Omit it and no header is drawn, for a page that brings its own. */
   title?: string
   turns: ChatTurn[]
 }
@@ -355,7 +356,7 @@ export const ChatApp = ({
   onSend,
   onStop,
   streaming = false,
-  title = "Chat",
+  title,
   turns,
 }: ChatAppProps) => {
   const [files, setFiles] = useState<PromptAttachment[]>([])
@@ -418,14 +419,16 @@ export const ChatApp = ({
       className={cn("flex h-full min-h-0 flex-col bg-background", className)}
       data-slot="chat-app"
     >
-      <header className="flex h-14 shrink-0 items-center gap-4 border-b border-border px-4">
-        <h1 className="truncate text-sm font-medium">{title}</h1>
-        {onReset ? (
-          <Button className="ml-auto" onClick={onReset} size="sm" type="button" variant="ghost">
-            New chat
-          </Button>
-        ) : null}
-      </header>
+      {title ? (
+        <header className="flex h-14 shrink-0 items-center gap-4 border-b border-border px-4">
+          <h1 className="truncate text-sm font-medium">{title}</h1>
+          {onReset ? (
+            <Button className="ml-auto" onClick={onReset} size="sm" type="button" variant="ghost">
+              New chat
+            </Button>
+          ) : null}
+        </header>
+      ) : null}
 
       <Conversation>
         <Thread empty={empty} onRetry={onRetry} turns={turns} />

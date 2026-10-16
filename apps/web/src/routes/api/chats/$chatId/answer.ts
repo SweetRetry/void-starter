@@ -9,10 +9,10 @@ import { problemResponse } from "@/server/problem"
 export const Route = createFileRoute("/api/chats/$chatId/answer")({
   server: {
     handlers: {
-      POST: chatRoute(async ({ request, params }) => {
+      POST: chatRoute(async ({ request, params, access }) => {
         const input = regenerateInput.safeParse(await request.json().catch(() => null))
         if (!input.success) return problemResponse(request, "VALIDATION_ERROR", "Pick a model.")
-        if (!(await dropTrailingAnswers(params.chatId))) {
+        if (access === "new" || !(await dropTrailingAnswers(params.chatId))) {
           return problemResponse(request, "NOT_FOUND", "There's no message to answer.")
         }
         return streamAnswer(request, params.chatId, input.data.model)

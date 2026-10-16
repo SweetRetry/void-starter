@@ -1,5 +1,8 @@
 @import "@workspace/ui/globals.css";
 
+/* Streamdown renders Markdown with its own utility classes. */
+@source "../node_modules/streamdown/dist/*.js";
+
 /* Retry › Quiet craft: text links draw their underline in from the left on hover and
    out to the right, and stay still under reduced motion. */
 @utility link {

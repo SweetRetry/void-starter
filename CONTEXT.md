@@ -2,7 +2,8 @@
 
 Project vocabulary. Use these terms in requirements, designs and code names.
 
-- **Chat.** One conversation, stored in D1 and addressed by a random UUID in its URL (`/c/<id>`). There are no accounts, so the link is the only key.
+- **Chat.** One conversation, stored in D1 and addressed by a random UUID in its URL (`/c/<id>`). It belongs to the visitor who sent its first turn. _Alias_: session, in the sidebar.
+- **Visitor.** One browser, identified by a random UUID in the HttpOnly `visitor` cookie. It stands in for an account: no sign-in, no fingerprinting, and clearing cookies starts a new visitor. _Avoid_: user, account.
 - **Turn.** One message in a chat, from the user or the assistant. _Avoid_: "message" in UI copy; the table is still `message`.
 - **Answer.** The assistant turn streamed from Workers AI through AI Gateway and saved when the stream finishes. _Avoid_: "completion".
 - **Reasoning.** The thinking a reasoning model streams before its answer (`reasoning_content`), saved beside the answer and shown in the thinking block.
