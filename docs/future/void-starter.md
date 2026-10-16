@@ -10,7 +10,7 @@ A public, MIT-licensed starter. Someone clones it, runs three commands, and has 
 pnpm dlx giget gh:SweetRetry/void-starter my-app
 cd my-app && pnpm install
 pnpm dev      # zero config: local D1 and R2
-pnpm deploy   # void deploy: D1, R2, AI binding, migrations
+pnpm run deploy   # void deploy: D1, R2, AI binding, migrations
 ```
 
 ## Done
@@ -29,7 +29,7 @@ pnpm deploy   # void deploy: D1, R2, AI binding, migrations
 ## 11. Ship
 
 - [x] The user runs `! pnpm connect` (Cloudflare login).
-- [ ] First `pnpm deploy` (confirm with the user first).
+- [ ] First `pnpm run deploy` (confirm with the user first).
 - [ ] Deployed browser check: send a message, attach a file, regenerate, reload.
 - [x] AI Gateway: it must exist first (error 2001). Created `void-starter`; its logs show calls from dev. Docs updated.
 - [ ] Confirm through the Cloudflare API that traces are on.

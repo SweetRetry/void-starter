@@ -8,13 +8,23 @@ Pick the Worker name first: `cloudflare.name` in `apps/web/void.config.ts` (defa
 
 ```sh
 pnpm connect
-pnpm deploy
+pnpm run deploy
 ```
 
 Before the first answer, create the AI Gateway: Cloudflare dashboard › AI › AI Gateway › Create gateway, named `void-starter` (or the value of `AI_GATEWAY_ID`). Workers AI rejects a gateway id the account doesn't have, and the chat answers `503` saying so. One gateway serves both dev and production.
 
 1. `pnpm connect` runs `void connect --platform cloudflare`. It signs you in to Cloudflare in the browser and records the choice in `apps/web/.void/project.json`. That file is gitignored, so each clone connects once.
-2. `pnpm deploy` runs `void deploy`. It builds the app, creates the D1 database and R2 bucket on the first run, binds Workers AI, applies pending D1 migrations and publishes the Worker. It prints the `workers.dev` URL when it's done.
+2. `pnpm run deploy` runs `void deploy`. It builds the app, creates the D1 database and R2 bucket on the first run, binds Workers AI, applies pending D1 migrations and publishes the Worker. It prints the `workers.dev` URL when it's done.
+
+`pnpm deploy` is pnpm's own command for copying a workspace package, so the script is called with `pnpm run deploy`.
+
+On this starter's first deploy, the Worker went live with its `workers.dev` route off (Cloudflare error 1042), and later deploys failed Void's readiness check because the new version had no preview URL. If that happens, open Workers & Pages › your Worker › Settings › Domains & Routes in the dashboard, enable `workers.dev` and Preview URLs, then deploy again with your account's subdomain:
+
+```sh
+CLOUDFLARE_WORKERS_SUBDOMAIN=<your-subdomain> pnpm run deploy
+```
+
+`void.config.ts` sets `workers_dev: true`, so later deploys keep the route on.
 
 `void deploy` writes `apps/web/void.lock.json` with your account id and the resources it created. The starter repo ignores it so no fork inherits someone else's account. In your own app, delete the `apps/web/void.lock.json` line from `.gitignore` and commit the file, so later deploys and teammates reuse the same database and bucket.
 
