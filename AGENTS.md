@@ -44,7 +44,7 @@ Route content by kind: system and usage knowledge → `docs/`; plans not decided
 One option per concern. Don't add alternatives.
 
 - Framework: TanStack Start on Void (framework mode). Bindings come from `void/db`, `void/storage`, `void/ai`.
-- Database: D1 through Drizzle. Auth: Better Auth.
+- Database: D1 through Drizzle. Auth, when the app adds accounts: Better Auth (today a cookie visitor owns each chat).
 - Client state: zustand. Toasts: sonner.
 - Motion: motion (`motion/react`) or Tailwind CSS transitions.
 - Forms: react-hook-form + zod + @hookform/resolvers, rendered with shadcn/ui `Field` and `Controller` (Base UI has no `Form` component).
