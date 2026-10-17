@@ -75,7 +75,7 @@ scripts/             UI 冻结检查、护栏和 e2e 运行器
 | `pnpm verify`      | 格式、Markdown、lint、规则、类型检查、测试、构建和 knip |
 | `pnpm e2e`         | 用无头 Chromium 跑浏览器冒烟测试                        |
 
-`pnpm verify` 是完整的检查，CI 运行的也是这条命令。`pnpm e2e` 在一份临时的应用副本上跑浏览器冒烟测试。第一次使用前，先用 `pnpm exec playwright install --only-shell chromium` 安装 Chromium。[lefthook.yml](lefthook.yml) 里的 Git hooks 会在 commit 和 push 时跑其中一部分快速检查。
+`pnpm verify` 是完整的检查，CI 会同时运行它和 `pnpm e2e`。`pnpm e2e` 在一份临时的应用副本上跑浏览器冒烟测试。第一次使用前，先用 `pnpm exec playwright install --only-shell chromium` 安装 Chromium。[lefthook.yml](lefthook.yml) 里的 Git hooks 会在 commit 和 push 时跑其中一部分快速检查。
 
 ## 文档
 
