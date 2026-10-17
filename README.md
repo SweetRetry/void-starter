@@ -75,7 +75,7 @@ scripts/             UI freeze, guardrails and the e2e runner
 | `pnpm verify`      | Format, Markdown, lint, rules, typecheck, test, build and knip |
 | `pnpm e2e`         | Browser smoke suite in headless Chromium                       |
 
-`pnpm verify` is the full gate, and CI runs the same command. `pnpm e2e` runs the browser smoke suite against a disposable copy of the app; install Chromium once with `pnpm exec playwright install --only-shell chromium`. Git hooks from [lefthook.yml](lefthook.yml) run a fast subset on commit and push.
+`pnpm verify` is the full gate, and CI runs it alongside `pnpm e2e`. `pnpm e2e` runs the browser smoke suite against a disposable copy of the app; install Chromium once with `pnpm exec playwright install --only-shell chromium`. Git hooks from [lefthook.yml](lefthook.yml) run a fast subset on commit and push.
 
 ## Docs
 

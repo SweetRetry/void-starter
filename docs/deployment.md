@@ -75,4 +75,6 @@ Rollback restores code, not data. D1 migrations stay applied, so keep each migra
 
 ## CI
 
-`.github/workflows/ci.yml` runs `pnpm verify` on every push and pull request. Deploying from CI needs a Cloudflare API token; it isn't set up here.
+`.github/workflows/ci.yml` runs two jobs in parallel on every pull request and push to `main`. `verify` runs `pnpm verify`. `e2e` installs Playwright Chromium and runs `pnpm e2e --screenshots`; it makes no AI requests and needs no Cloudflare account. When it fails, the run keeps `.verification/` for 7 days as the `e2e-evidence` artifact. Dependabot (`.github/dependabot.yml`) bumps the actions monthly.
+
+Deploying from CI needs a Cloudflare API token; it isn't set up here.

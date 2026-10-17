@@ -5,21 +5,27 @@ on:
     branches: [main]
   push:
     branches: [main]
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
+  # The full gate (AGENTS.md › Verification).
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
@@ -27,3 +33,40 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - run: pnpm verify
+
+  # Browser smoke journeys against a local copy of the app. No AI requests, no Cloudflare account.
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - id: playwright
+        run: echo "version=$(pnpm exec playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
+      - run: pnpm exec playwright install --with-deps --only-shell chromium
+
+      - run: pnpm e2e --screenshots
+
+      # result.json, server.log, browser.log and one snapshot per step.
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-evidence
+          path: .verification/
+          retention-days: 7
