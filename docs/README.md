@@ -8,6 +8,7 @@ docs/
   api.md            the HTTP error contract and every problem type
   deployment.md     Cloudflare deploy, secrets, OAuth, AI Gateway, rollback
   observability.md  logs and traces, locally and in production
+  guardrails.md     the hooks, lint and scans that check an agent's work, and what to do when one fails
   future/           plans not decided yet, each with the signal that would trigger it
 ```
 
