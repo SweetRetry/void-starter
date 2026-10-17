@@ -30,14 +30,14 @@ Route content by kind: system and usage knowledge → `docs/`; plans not decided
 
 ## Rules by trigger
 
-| Trigger                                             | Read first                                                       |
-| :-------------------------------------------------- | :--------------------------------------------------------------- |
-| Void: bindings, CLI, config, deploy                 | `.agents/skills/void/SKILL.md` (ships with the installed `void`) |
-| Using Zod or changing validation                    | `rules/zod-v4/README.md`                                         |
-| Frontend UI: screens, layout, motion, components    | [DESIGN.md](DESIGN.md)                                           |
-| `/api/*` routes and error responses                 | [docs/api.md](docs/api.md)                                       |
-| Env vars, secrets, deploy, AI Gateway               | [docs/deployment.md](docs/deployment.md)                         |
-| What a request actually did: logs, traces, `cf-ray` | [docs/observability.md](docs/observability.md)                   |
+| Trigger                                             | Read first                                                                                                           |
+| :-------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------- |
+| Void: bindings, CLI, config, deploy                 | [.agents/skills/void/SKILL.md](.agents/skills/void/SKILL.md); its `docs/` live in `apps/web/node_modules/void/docs/` |
+| Using Zod or changing validation                    | `rules/zod-v4/README.md`                                                                                             |
+| Frontend UI: screens, layout, motion, components    | [DESIGN.md](DESIGN.md)                                                                                               |
+| `/api/*` routes and error responses                 | [docs/api.md](docs/api.md)                                                                                           |
+| Env vars, secrets, deploy, AI Gateway               | [docs/deployment.md](docs/deployment.md)                                                                             |
+| What a request actually did: logs, traces, `cf-ray` | [docs/observability.md](docs/observability.md)                                                                       |
 
 ## Tech choices
 
@@ -54,6 +54,7 @@ One option per concern. Don't add alternatives.
 ## Verification
 
 - For browser E2E, reproducing user journeys, or capturing runtime evidence, read [.agents/skills/verify-web/SKILL.md](.agents/skills/verify-web/SKILL.md). `pnpm e2e` runs the local browser smoke suite. The feature map distinguishes automated checks from journeys that need connected AI.
+- [docs/guardrails.md](docs/guardrails.md) lists every hook, lint rule and scan, when it runs and what to do when one fails.
 - After a code change, `pnpm verify` is the one full gate. It runs `format:check`, `md:check`, `lint`, `rules:check`, `typecheck`, `test`, `build` and `knip`. Day-to-day commands are in the root `package.json`.
 - Oxfmt shapes Markdown; markdownlint adds only structural rules (fence languages, heading levels, links), configured in `.markdownlint-cli2.jsonc`. Keep them from overlapping, or the two commands keep rewriting the same file.
 - Git hooks come from the root `lefthook.yml` and install with `pnpm install`. Pre-commit runs Oxfmt and markdownlint on staged files (and re-stages them) plus `rules:check`. Pre-push runs typecheck and test. Hooks are a subset of `pnpm verify` and don't replace CI. Skip them with `git commit --no-verify` or `LEFTHOOK=0`.

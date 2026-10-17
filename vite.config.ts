@@ -16,6 +16,8 @@ export default defineConfig({
       "packages/ui/src/components/**",
       "packages/ui/frozen.manifest.json",
       "pnpm-lock.yaml",
+      ".agents/skills/void/**",
+      ".agents/skills/sweet-mode/**",
     ],
   },
   lint: {
@@ -52,7 +54,12 @@ export default defineConfig({
         },
       },
     ],
-    ignorePatterns: ["packages/ui/src/components/**", "**/routeTree.gen.ts", "**/.void/**"],
+    ignorePatterns: [
+      "packages/ui/src/components/**",
+      "**/routeTree.gen.ts",
+      "**/.void/**",
+      ".agents/skills/sweet-mode/**",
+    ],
   },
   test: {
     projects: ["apps/*", "packages/*"],
