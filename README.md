@@ -58,11 +58,11 @@ The public `workers.dev` URL starts closed (`workers_dev: false` in `apps/web/vo
 
 ```text
 apps/web/            TanStack Start app deployed by Void
-packages/ui/         shadcn/ui components (byte-frozen) and Retry tokens
+packages/ui/         shadcn/ui components and Retry tokens
 packages/typescript-config/
 docs/                architecture, API, deployment, observability
 rules/               engineering rules with their gates
-scripts/             UI freeze, guardrails and the e2e runner
+scripts/             skill sync and the e2e runner
 ```
 
 ## Commands

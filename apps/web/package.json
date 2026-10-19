@@ -15,10 +15,10 @@
     "predev": "void db migrate"
   },
   "dependencies": {
-    "@tanstack/react-router": "^1.170.44",
-    "@tanstack/react-start": "^1.169.2",
+    "@tanstack/react-router": "^1.170.45",
+    "@tanstack/react-start": "^1.169.3",
     "@workspace/ui": "workspace:*",
-    "lucide-react": "^1.57.0",
+    "lucide-react": "^1.59.0",
     "motion": "^14.3.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

@@ -21,16 +21,6 @@
 - **Button**：提供 `default`、`secondary`、`ghost`、`destructive` 与 `link` 变体（无 `outline`），禁用态使用 `bg-surface-1 text-subtle-foreground`。
 - **浮层组件**：Popover、Dropdown、Select 与 Context Menu 统一使用无阴影的 `rounded-md border bg-popover`。
 
-### F1 组件字节冻结
-
-`packages/ui/frozen.manifest.json` 记录了 `packages/ui/src/components` 下所有文件的 SHA-256 哈希，由 `pnpm ui:freeze` 在提交前与 CI 中进行校验。
-
-| 命令                      | 作用                                         |
-| :------------------------ | :------------------------------------------- |
-| `pnpm ui:freeze`          | 校验 `packages/ui/src/components` 的文件哈希 |
-| `shadcn diff <component>` | 与上游 shadcn/ui 对比单个组件差异            |
-| `pnpm ui:freeze:update`   | 更新组件后重写 `frozen.manifest.json` 基线   |
-
 ### Motif 聊天组件
 
 `apps/web/src/components/chat` 与 `agents` 集成了来自 [Motif](https://motif.sweetretry.com) 的聊天界面组件：消息流、附件输入框、模型选择器、思考过程折叠块与右侧滚动轨，均已适配 Base UI 的 `render` 属性。
@@ -67,15 +57,14 @@ rules: {
 }
 ```
 
-调用方只能向共享 UI 组件传入布局类名（外边距、宽度、Flex/Grid 定位），组件自身的外观由 `variant` 与 `size` 决定。
+原子控件在调用点只接收布局类名（外边距、宽度、Flex/Grid 定位），自身外观由 `variant` 与 `size` 决定；容器与文本插槽按 `contracts` 开放 `spacing`、`rounded` 或 `typography`。
 
 ### 仓库级静态扫描
 
-`pnpm rules:check` 执行四个脚本：
+`pnpm rules:check` 执行三个脚本：
 
 - **`pnpm zod:check`** (`rules/zod-v4/check.js`)：检查已废弃的 Zod v3 写法。
 - **`pnpm ui:check`** (`.agents/skills/sweet-mode/scripts/ui-guardrails.js`)：检查动效、z-index、色值与字号禁令，如 `transition-all`、`ease-in` 与任意 `z-[...]` 类名。
-- **`pnpm ui:freeze`** (`scripts/ui-freeze.js`)：检查 `packages/ui/src/components` 的 F1 哈希清单。
 - **`pnpm skills:check`** (`scripts/agent-skills.js`)：检查复制进来的 agent skill 与来源一致。
 
 ### Markdown 协作管线

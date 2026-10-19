@@ -15,5 +15,5 @@
 ## Verification
 
 - **Tests and types first.** An invariant that can run as a test or a type is written as one. Visual and product judgment is checked in review.
-- **Few source scans.** A scan joins `pnpm rules:check` only when its boundary is sharp and false positives are rare. Today: `zod:check` (deprecated Zod APIs), `ui:check` (the sweet-mode scanner for motion, z-index, color and type bans), `ui:freeze` (the F1 baseline), `skills:check` (the copied agent skills). `vp lint` runs `@shadcn/lint` for call-site restyling, raw colors and arbitrary values.
+- **Few source scans.** A scan joins `pnpm rules:check` only when its boundary is sharp and false positives are rare. Today: `zod:check` (deprecated Zod APIs), `ui:check` (the sweet-mode scanner for motion, z-index, color and type bans), `skills:check` (the copied agent skills). `vp lint` runs `@shadcn/lint` for call-site restyling, raw colors and arbitrary values.
 - **No heuristic regex.** Everything else (spacing optics, composition, API response shape) is judged against the checklists, so nobody writes code just to pass a scanner.

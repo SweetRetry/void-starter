@@ -21,10 +21,10 @@ Alongside the app, the repository includes Tailwind CSS v4, shadcn/ui on Base UI
 ```text
 void-starter/
   apps/web/                     TanStack Start app, Drizzle schema, Void config
-  packages/ui/                  shadcn/ui (Base UI, byte-frozen) + Retry tokens
+  packages/ui/                  shadcn/ui (Base UI) + Retry tokens
   packages/typescript-config/   Shared TypeScript presets
   rules/                        Zod v4 static check
-  scripts/                      F1 component freeze and UI guardrails
+  scripts/                      Skill sync and E2E runner
   docs/                         Architecture, API contract, deploy and logs
 ```
 

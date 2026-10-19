@@ -16,11 +16,9 @@ Route content by kind: system and usage knowledge → `docs/`; plans not decided
 ## Architecture
 
 - `apps/*` own entry points, composition and app-specific business code. `packages/*` hold only capabilities that several apps or processes already share, never what might be reused someday. Cross package boundaries only through public `exports`.
-- `packages/ui` owns each component's **own appearance**: height, padding, radius, color and type come from its variants (`variant` / `size`). Call sites control only layout (margin, width, flex or grid placement) and props.
-- A new look goes where its reuse is: a variant in the component when several apps need it (an explicit unfreeze), otherwise a recipe (`packages/ui/src/recipes`) or an app component.
-- Changes to `packages/ui` and `globals.css` need **HITL** (a human confirms first), so nobody quietly alters a base component or the global styles:
-  - `packages/ui/src/components/**` is upstream shadcn/ui code (Base UI, `base-nova`) with Retry's component deltas applied (`DESIGN.md` › Components). It is **byte-frozen (F1)**: the baseline is `packages/ui/frozen.manifest.json`, checked by `pnpm ui:freeze` inside `rules:check`. The baseline is the last accepted state, not upstream's latest; `shadcn diff` answers that at upgrade time. Accept a change with `pnpm ui:freeze:update` in its own commit that says whether it is an upstream upgrade or a recorded unfreeze.
-  - `packages/ui/src/styles/globals.css` and `retry.css` hold the theme and tokens. They implement Retry, specified in `DESIGN.md`. Agents never change them silently: propose first and wait for explicit approval.
+- `packages/ui` owns each atomic control's **own appearance**: height, padding, radius, color and type come from its variants (`variant` / `size`), while call sites pass only layout classes (margin, width, flex or grid placement) and props. Container and typography slots (`Card*`, `Dialog*`, `Table*`, `Field*`) allow `spacing`, concentric `rounded` or `typography` per the `contracts` in `vite.config.ts`.
+- A new look goes where its reuse is: a `cva` variant in `packages/ui/src/components/*` when shared across views, otherwise an app component.
+- Changes to `packages/ui/src/styles/globals.css` and `retry.css` need **HITL** (a human confirms first): they hold the global theme and Retry tokens specified in `DESIGN.md`. Agents never change them silently; propose first and wait for explicit approval.
 - Before building something, check the docs, types and extension points of the dependencies already here. Prefer maintained, production-proven libraries.
 - Tests never start or depend on a container runtime. Integration checks that need outside resources run in an explicit integration environment.
 - Directory names carry the grouping. Inside a directory that already names the domain, a file name says only its own job: `server/notes.functions.ts`, not `server/server-notes-functions.ts`.

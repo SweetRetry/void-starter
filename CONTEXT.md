@@ -13,4 +13,3 @@ Project vocabulary. Use these terms in requirements, designs and code names.
 - **Motif.** The registry the chat UI was copied from (`motif.sweetretry.com`). The copies under `apps/web/src/components` are now local code: maintained, trimmed and linted here, with no sync back to Motif.
 - **Retry.** The design language this starter ships: `DESIGN.md` is its spec, `packages/ui/src/styles/retry.css` its tokens.
 - **Retry deltas.** The class changes that adapt upstream shadcn/ui components to Retry (`DESIGN.md` › Components).
-- **F1 freeze.** The byte-level baseline for `packages/ui/src/components`, checked by `pnpm ui:freeze`. A change to it is either an **upstream upgrade** or a **recorded unfreeze**.

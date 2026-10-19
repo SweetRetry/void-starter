@@ -21,16 +21,6 @@ Styling runs on Tailwind CSS v4 and the Retry tokens defined in `DESIGN.md`, `pa
 - **Button**: `default`, `secondary`, `ghost`, `destructive` and `link` variants (no `outline`); disabled states use `bg-surface-1 text-subtle-foreground`.
 - **Floating layers**: Popover, Dropdown, Select and Context Menu use `rounded-md border bg-popover` with no shadow.
 
-### F1 component freeze
-
-`packages/ui/frozen.manifest.json` stores the SHA-256 hash of every file in `packages/ui/src/components`. `pnpm ui:freeze` verifies those hashes in pre-commit and CI.
-
-| Command                   | Action                                                    |
-| :------------------------ | :-------------------------------------------------------- |
-| `pnpm ui:freeze`          | Check `packages/ui/src/components` against SHA-256 hashes |
-| `shadcn diff <component>` | Diff a component against upstream shadcn/ui               |
-| `pnpm ui:freeze:update`   | Rewrite `frozen.manifest.json` after an update            |
-
 ### Motif chat blocks
 
 `apps/web/src/components/chat` and `agents` vendor the chat UI blocks from [Motif](https://motif.sweetretry.com): message thread, attachment composer, model selector, collapsible reasoning block and scroll rail, adapted to Base UI's `render` prop.
@@ -67,15 +57,14 @@ rules: {
 }
 ```
 
-Call sites pass only layout utilities (`margin`, `width`, flex and grid placement) to shared UI components.
+Call sites pass only layout utilities (`margin`, `width`, flex and grid placement) to atomic controls, while structural and text slots allow `spacing`, `rounded` or `typography` through component contracts.
 
 ### Custom repo checks
 
-`pnpm rules:check` runs four scripts:
+`pnpm rules:check` runs three scripts:
 
 - **`pnpm zod:check`** (`rules/zod-v4/check.js`): checks for deprecated Zod v3 APIs.
 - **`pnpm ui:check`** (`.agents/skills/sweet-mode/scripts/ui-guardrails.js`): checks motion, z-index, color and type bans such as `transition-all`, `ease-in` and arbitrary `z-[...]` classes.
-- **`pnpm ui:freeze`** (`scripts/ui-freeze.js`): checks the F1 component manifest.
 - **`pnpm skills:check`** (`scripts/agent-skills.js`): checks the copied agent skills against their sources.
 
 ### Markdown pipeline

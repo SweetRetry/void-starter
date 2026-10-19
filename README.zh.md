@@ -58,11 +58,11 @@ pnpm run deploy
 
 ```text
 apps/web/            由 Void 部署的 TanStack Start 应用
-packages/ui/         shadcn/ui 组件（字节冻结）和 Retry 设计 token
+packages/ui/         shadcn/ui 组件和 Retry 设计 token
 packages/typescript-config/
 docs/                架构、API、部署、可观测性
 rules/               工程规则及其检查
-scripts/             UI 冻结检查、护栏和 e2e 运行器
+scripts/             skill 同步和 e2e 运行器
 ```
 
 ## 常用命令

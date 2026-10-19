@@ -21,10 +21,10 @@
 ```text
 void-starter/
   apps/web/                     TanStack Start 应用、Drizzle Schema 与 Void 配置
-  packages/ui/                  shadcn/ui 基础组件（Base UI，字节冻结）与 Retry Token
+  packages/ui/                  shadcn/ui 基础组件（Base UI）与 Retry Token
   packages/typescript-config/   共享 TypeScript 编译配置
   rules/                        Zod v4 静态检查
-  scripts/                      F1 组件冻结与 UI 样式护栏脚本
+  scripts/                      Skill 同步与 E2E 运行脚本
   docs/                         架构、API 错误契约、部署与日志文档
 ```
 

@@ -1,6 +1,15 @@
 packages:
   - "apps/*"
   - "packages/*"
+# Audit fixes for advisories that reach us only through transitive trees.
+# `braces` has no patched release (registry latest is still 3.0.3), so it stays until
+# markdownlint-cli2 and shadcn drop micromatch. `esbuild` is pinned at 0.18.20 by
+# drizzle-kit's deprecated @esbuild-kit loader and cannot cross a major through an override.
+overrides:
+  next: ^16.3.8
+  katex: ^0.19.0
+  smol-toml: ^1.9.1
+  source-map-js: ^1.2.2
 allowBuilds:
   better-sqlite3: false
   esbuild: true

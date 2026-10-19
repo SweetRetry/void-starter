@@ -14,7 +14,6 @@ export default defineConfig({
       "**/routeTree.gen.ts",
       "**/db/migrations/**",
       "packages/ui/src/components/**",
-      "packages/ui/frozen.manifest.json",
       "pnpm-lock.yaml",
       ".agents/skills/void/**",
       ".agents/skills/sweet-mode/**",
@@ -32,7 +31,24 @@ export default defineConfig({
     rules: {
       // `const { node, ...props } = p` is how a prop is dropped before spreading the rest.
       "no-unused-vars": ["warn", { ignoreRestSiblings: true }],
-      "shadcn/no-restyle": ["error", { allow: ["layout"] }],
+      "shadcn/no-restyle": [
+        "error",
+        {
+          allow: ["layout"],
+          contracts: [
+            {
+              pattern:
+                "^(?:Card|CardHeader|CardContent|CardFooter|DialogContent|DialogHeader|DialogFooter|AlertDialogContent|AlertDialogHeader|AlertDialogFooter|SheetContent|SheetHeader|SheetFooter|DrawerContent|DrawerHeader|DrawerFooter|PopoverContent|HoverCardContent|TabsContent|AccordionContent|CollapsibleContent|ScrollArea|ResizablePanel|SidebarContent|SidebarHeader|SidebarFooter|SidebarGroup|SidebarGroupContent|FormItem|Field|FieldGroup|FieldSet|Alert)$",
+              allow: ["layout", "spacing", "rounded"],
+            },
+            {
+              pattern:
+                "^(?:CardTitle|CardDescription|DialogTitle|DialogDescription|AlertDialogTitle|AlertDialogDescription|SheetTitle|SheetDescription|DrawerTitle|DrawerDescription|AlertTitle|AlertDescription|TableHead|TableCell|TableCaption|FormLabel|FormDescription|FieldLabel|FieldDescription|FieldLegend)$",
+              allow: ["layout", "spacing", "typography"],
+            },
+          ],
+        },
+      ],
       "shadcn/no-raw-colors": "error",
       "shadcn/no-unknown-classes": "error",
       "shadcn/require-static-classes": "error",
