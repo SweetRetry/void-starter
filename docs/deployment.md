@@ -26,8 +26,6 @@ CLOUDFLARE_WORKERS_SUBDOMAIN=<your-subdomain> pnpm run deploy
 
 `void.config.ts` ships with `workers_dev: false`, so the public `workers.dev` route stays closed and nobody can spend the account's Workers AI allowance through it. Set it to `true` to open the app. `preview_urls: true` stays on either way: `void deploy` checks each new version's `/__void/ready` through its preview URL before it shifts traffic, and each version's preview URL (`<version>-<worker>.<subdomain>.workers.dev`) stays reachable.
 
-The `deploy` script first deletes `apps/web/.void/preview-deploy-config.json`. A plain `vite build` (`pnpm verify` runs one) stashes Wrangler's deploy pointer there. With prerendering on, Void 1.1.12 and earlier restore that stash for the prerender preview during `void deploy` and delete `.wrangler/deploy/config.json` when the build process exits, so the deploy fails with `ENOENT … .wrangler/deploy/config.json`. Without the stash the deploy build keeps its own pointer. The fix ([voidzero-dev/void#463](https://github.com/voidzero-dev/void/issues/463), commit `d9ce787`) landed after 1.1.12; drop the step in the first release that contains it.
-
 `void deploy` writes `apps/web/void.lock.json` with your account id and the resources it created. The starter repo ignores it so no fork inherits someone else's account. In your own app, delete the `apps/web/void.lock.json` line from `.gitignore` and commit the file, so later deploys and teammates reuse the same database and bucket.
 
 ## Secrets and env
