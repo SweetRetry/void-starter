@@ -20,7 +20,7 @@
     "format:check": "vp fmt --check",
     "md:check": "markdownlint-cli2",
     "md:fix": "markdownlint-cli2 --fix",
-    "zod:check": "node rules/zod-v4/check.js",
+    "zod:check": "node docs/rules/zod-v4/check.js",
     "ui:check": "node .agents/skills/sweet-mode/scripts/ui-guardrails.js",
     "skills:check": "node scripts/agent-skills.js",
     "skills:update": "node scripts/agent-skills.js --update",

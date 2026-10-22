@@ -30,7 +30,7 @@ Hooks come from `lefthook.yml` and install with `pnpm install`. Pre-commit forma
   - `shadcn/no-unknown-classes` and `shadcn/require-static-classes` keep class names known and statically readable.
   - `apps/web/src/components/{agents,scroll-rail,ui}` is the app's own component library and is exempt from the color, value and inline-style rules. `no-restyle` still applies there.
 - **Rule scans.** `pnpm rules:check` runs three scans with no room for judgment:
-  - `zod:check` fails on Zod v3 patterns and deprecated APIs ([rules/zod-v4/README.md](../rules/zod-v4/README.md)).
+  - `zod:check` fails on Zod v3 patterns and deprecated APIs ([rules/zod-v4/README.md](rules/zod-v4/README.md)).
   - `ui:check` runs the [sweet-mode](../.agents/skills/sweet-mode/SKILL.md) scanner. It fails on `transition-all`, transitions on layout properties, `ease-in`, entering from `scale: 0`, z-index off the `-z-10` to `z-50` ladder, hard-coded colors in classes, and arbitrary font sizes and families. It skips `packages/ui`, `components/ui`, tests and skill directories.
   - `skills:check` fails when a copied skill drifted from its source. `.agents/skills/void` must match the installed `void` package byte for byte. `.agents/skills/sweet-mode` must match the hash recorded in `.agents/skills/skills-lock.json`.
 - **Types.** `tsc --noEmit` per workspace through Turborepo, with `strict` and `noUncheckedIndexedAccess`. In `apps/web` it runs `void prepare` first, which generates the binding types.
@@ -60,4 +60,4 @@ Fix the cause the message names. Every scan prints the file, the rule and the re
 
 ## What no tool checks
 
-Judgment stays in review: spacing optics, composition, copy, API response shape and whether a component belongs in `packages/ui`. The checklists for those are routed from [AGENTS.md](../AGENTS.md). [rules/README.md](../rules/README.md) explains why a rule becomes a scan only when its boundary is sharp.
+Judgment stays in review: spacing optics, composition, copy, API response shape and whether a component belongs in `packages/ui`. The checklists for those are routed from [AGENTS.md](../AGENTS.md). [rules/README.md](rules/README.md) explains why a rule becomes a scan only when its boundary is sharp.

@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "ignore": ["rules/**"],
+  "ignore": ["docs/rules/**"],
   "workspaces": {
     ".": {
       "entry": ["scripts/e2e-browser.js"],

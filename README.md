@@ -61,7 +61,7 @@ apps/web/            TanStack Start app deployed by Void
 packages/ui/         shadcn/ui components and Retry tokens
 packages/typescript-config/
 docs/                architecture, API, deployment, observability
-rules/               engineering rules with their gates
+docs/rules/          engineering rules with their gates
 scripts/             skill sync and the e2e runner
 ```
 

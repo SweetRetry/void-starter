@@ -63,7 +63,7 @@ rules: {
 
 `pnpm rules:check` 执行三个脚本：
 
-- **`pnpm zod:check`** (`rules/zod-v4/check.js`)：检查已废弃的 Zod v3 写法。
+- **`pnpm zod:check`** (`docs/rules/zod-v4/check.js`)：检查已废弃的 Zod v3 写法。
 - **`pnpm ui:check`** (`.agents/skills/sweet-mode/scripts/ui-guardrails.js`)：检查动效、z-index、色值与字号禁令，如 `transition-all`、`ease-in` 与任意 `z-[...]` 类名。
 - **`pnpm skills:check`** (`scripts/agent-skills.js`)：检查复制进来的 agent skill 与来源一致。
 

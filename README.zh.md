@@ -61,7 +61,7 @@ apps/web/            由 Void 部署的 TanStack Start 应用
 packages/ui/         shadcn/ui 组件和 Retry 设计 token
 packages/typescript-config/
 docs/                架构、API、部署、可观测性
-rules/               工程规则及其检查
+docs/rules/          工程规则及其检查
 scripts/             skill 同步和 e2e 运行器
 ```
 

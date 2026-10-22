@@ -4,7 +4,7 @@ Void Starter is a full-stack TypeScript starter in a Turborepo + pnpm workspace.
 
 ## Where things go
 
-Route content by kind: system and usage knowledge → `docs/`; plans not decided yet → `docs/future/`; engineering constraints → `rules/`; repo tooling → `scripts/`. Read `rules/README.md` before adding or changing a rule.
+Route content by kind: system and usage knowledge → `docs/`; plans not decided yet → `docs/future/`; engineering constraints → `docs/rules/`; repo tooling → `scripts/`. Read `docs/rules/README.md` before adding or changing a rule.
 
 ## Vocabulary
 
@@ -31,7 +31,7 @@ Route content by kind: system and usage knowledge → `docs/`; plans not decided
 | Trigger                                             | Read first                                                                                                           |
 | :-------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------- |
 | Void: bindings, CLI, config, deploy                 | [.agents/skills/void/SKILL.md](.agents/skills/void/SKILL.md); its `docs/` live in `apps/web/node_modules/void/docs/` |
-| Using Zod or changing validation                    | `rules/zod-v4/README.md`                                                                                             |
+| Using Zod or changing validation                    | `docs/rules/zod-v4/README.md`                                                                                        |
 | Frontend UI: screens, layout, motion, components    | [DESIGN.md](DESIGN.md)                                                                                               |
 | `/api/*` routes and error responses                 | [docs/api.md](docs/api.md)                                                                                           |
 | Env vars, secrets, deploy, AI Gateway               | [docs/deployment.md](docs/deployment.md)                                                                             |

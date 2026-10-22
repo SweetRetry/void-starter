@@ -24,7 +24,7 @@ pnpm run deploy   # void deploy: D1, R2, AI binding, migrations
 7. Streaming answers and reasoning from free Workers AI models through AI Gateway, saved when the stream finishes.
 8. A flat `{ code, message }` error contract on `/api/*`; Workers Logs and Traces turned on in `void.config.ts`.
 9. Retry design: tokens, DESIGN.md, Base UI components with Retry deltas.
-10. Docs in English: README, AGENTS.md, CONTEXT.md, docs/, rules/, scripts.
+10. Docs in English: README, AGENTS.md, CONTEXT.md, docs/ (with its rules/), scripts.
 
 ## 11. Ship
 

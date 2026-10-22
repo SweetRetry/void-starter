@@ -1,6 +1,6 @@
 # Rules
 
-`rules/` holds the engineering constraints in force, each routed from [AGENTS.md](../AGENTS.md) by its trigger.
+`docs/rules/` holds the engineering constraints in force, each routed from [AGENTS.md](../../AGENTS.md) by its trigger.
 
 ## Writing a rule
 

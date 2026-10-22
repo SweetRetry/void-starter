@@ -4,7 +4,7 @@ import { join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { scanContent } from "./scan.js"
 
-const repositoryRoot = resolve(fileURLToPath(new URL("../..", import.meta.url)))
+const repositoryRoot = resolve(fileURLToPath(new URL("../../..", import.meta.url)))
 
 function listSourceFiles() {
   const output = execFileSync(
@@ -21,7 +21,7 @@ function listSourceFiles() {
       (f) =>
         !f.includes("node_modules") &&
         !f.includes("/dist/") &&
-        !f.includes("rules/zod-v4/") &&
+        !f.includes("docs/rules/zod-v4/") &&
         !f.startsWith("packages/ui/")
     )
 }

@@ -63,7 +63,7 @@ Call sites pass only layout utilities (`margin`, `width`, flex and grid placemen
 
 `pnpm rules:check` runs three scripts:
 
-- **`pnpm zod:check`** (`rules/zod-v4/check.js`): checks for deprecated Zod v3 APIs.
+- **`pnpm zod:check`** (`docs/rules/zod-v4/check.js`): checks for deprecated Zod v3 APIs.
 - **`pnpm ui:check`** (`.agents/skills/sweet-mode/scripts/ui-guardrails.js`): checks motion, z-index, color and type bans such as `transition-all`, `ease-in` and arbitrary `z-[...]` classes.
 - **`pnpm skills:check`** (`scripts/agent-skills.js`): checks the copied agent skills against their sources.
 

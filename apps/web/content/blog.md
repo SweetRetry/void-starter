@@ -23,9 +23,9 @@ void-starter/
   apps/web/                     TanStack Start app, Drizzle schema, Void config
   packages/ui/                  shadcn/ui (Base UI) + Retry tokens
   packages/typescript-config/   Shared TypeScript presets
-  rules/                        Zod v4 static check
   scripts/                      Skill sync and E2E runner
   docs/                         Architecture, API contract, deploy and logs
+  docs/rules/                   Engineering rules, with the Zod v4 static check
 ```
 
 `apps/web` holds the routes, server functions and API endpoints. `packages/ui` exports the shared component primitives and theme tokens.
