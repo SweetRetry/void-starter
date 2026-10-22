@@ -3,8 +3,8 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
 import { readAiStream } from "@/lib/ai-stream"
-import { problemDetail } from "@/lib/api-problem"
-import { chatPaths, sendInput, sendProblem } from "@/lib/chat"
+import { readApiError } from "@/lib/api"
+import { chatPaths, sendError, sendInput } from "@/lib/chat"
 import type { ChatFile, ChatTurn, Turn } from "@/lib/chat"
 import { DEFAULT_MODEL, MODELS } from "@/lib/models"
 
@@ -43,7 +43,13 @@ export function useChat(chatId: string, saved: Turn[], savedModel?: string) {
     try {
       const response = await request()
       if (!response.ok || !response.body) {
-        toast.error(await problemDetail(response, "The message wasn't sent. Try again."))
+        const error = await readApiError(response)
+        toast.error(error?.message ?? "The message wasn't sent. Try again.", {
+          // A reference the person can quote; the server logged it with the failure.
+          ...(error?.code === "INTERNAL_SERVER_ERROR" && {
+            description: `Reference: ${error.traceId}`,
+          }),
+        })
         return false
       }
       for await (const event of readAiStream(response.body)) {
@@ -70,7 +76,7 @@ export function useChat(chatId: string, saved: Turn[], savedModel?: string) {
     async (content: string, files: ChatFile[]) => {
       const uploads = files.flatMap((file) => (file.file ? [file.file] : []))
       const input = sendInput.safeParse({ content, model, files: uploads })
-      if (!input.success) return toast.error(sendProblem(input.error).detail)
+      if (!input.success) return toast.error(sendError(input.error).message)
 
       const userId = crypto.randomUUID()
       const answerId = crypto.randomUUID()

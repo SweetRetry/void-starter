@@ -54,7 +54,7 @@ Each decision names the alternative it beat, so a later change can tell whether 
 - **Base UI under shadcn/ui.** The components were regenerated on the `base-nova` preset. Base UI has no `Form` registry item; forms use shadcn's `Field` with react-hook-form's `Controller`.
 - **Retry is the design language.** [DESIGN.md](../DESIGN.md) is the spec and `packages/ui/src/styles/retry.css` holds its tokens. Both are this repo's own files; change them like any other design decision. Retry's component deltas (`DESIGN.md` › Components) are baked into `packages/ui/src/components`.
 - **Vite+ for format, lint and test.** One toolchain (`vp fmt`, `vp lint`, `vp test`) replaces Biome, oxlint config files and a bare Vitest. `@shadcn/lint` rules run inside `vp lint`.
-- **RFC 9457 for every `/api/*` error.** One helper builds every error body, and `instance` carries the `cf-ray` id, so a user's report finds the request in Workers Logs ([api.md](api.md)).
+- **One flat error body for every `/api/*` error.** `{ code, message, issues?, traceId? }`, built by one helper and read by one client function. Clients branch on `code` and the status, and a `500`'s `traceId` is the `cf-ray` id, so a user's report finds the request in Workers Logs ([api.md](api.md)).
 
 ## Data and migrations
 

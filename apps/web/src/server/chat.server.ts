@@ -8,7 +8,7 @@ import { attachment, chat, message } from "../../db/schema"
 import { readAiStream } from "@/lib/ai-stream"
 import { chatPaths, isPreviewableImage, type Session, type Turn } from "@/lib/chat"
 import { AI_GATEWAY_ID, FILE_TEXT_CHARS, HISTORY_TURNS, SYSTEM_PROMPT } from "./ai"
-import { problemResponse } from "./problem"
+import { errorResponse } from "./error-response"
 
 /** Whether a chat id is free, the visitor's own, or someone else's. */
 export async function chatAccess(chatId: string, visitor: string) {
@@ -183,7 +183,7 @@ async function promptFor(chatId: string) {
  * Stream an answer to the chat's latest user turn as SSE through AI Gateway. The browser renders
  * the stream; a copy is read here and saved once it finishes, unless a newer turn landed first.
  */
-export async function streamAnswer(request: Request, chatId: string, model: string) {
+export async function streamAnswer(chatId: string, model: string) {
   const { messages, lastId } = await promptFor(chatId)
 
   let stream: Response
@@ -194,7 +194,7 @@ export async function streamAnswer(request: Request, chatId: string, model: stri
       { gateway: { id: AI_GATEWAY_ID } }
     )
   } catch (error) {
-    return aiProblem(request, error)
+    return aiError(error)
   }
 
   const [toBrowser, toSave] = stream.body!.tee()
@@ -202,32 +202,30 @@ export async function streamAnswer(request: Request, chatId: string, model: stri
   return new Response(toBrowser, { headers: stream.headers })
 }
 
-/** The problem response for a known way `ai.stream()` refuses; anything else rethrows. */
-function aiProblem(request: Request, error: unknown): Response {
+/** The error response for a known way `ai.stream()` refuses; anything else rethrows. */
+function aiError(error: unknown): Response {
   // Void binds Workers AI only once the clone is connected to Cloudflare.
   if (error instanceof Error && error.message.startsWith("ai: Not available")) {
-    return problemResponse(
-      request,
-      "SERVICE_UNAVAILABLE",
-      "AI isn't connected yet. Run `pnpm connect`, then restart `pnpm dev`."
-    )
+    return errorResponse({
+      code: "SERVICE_UNAVAILABLE",
+      message: "AI isn't connected yet. Run `pnpm connect`, then restart `pnpm dev`.",
+    })
   }
   // Workers AI refuses a gateway id the account hasn't created (AiGatewayError 2001).
   if (error instanceof Error && error.message.includes("Please configure AI Gateway")) {
-    return problemResponse(
-      request,
-      "SERVICE_UNAVAILABLE",
-      `AI Gateway "${AI_GATEWAY_ID}" doesn't exist yet. Create it in the Cloudflare dashboard under AI › AI Gateway.`
-    )
+    return errorResponse({
+      code: "SERVICE_UNAVAILABLE",
+      message: `AI Gateway "${AI_GATEWAY_ID}" doesn't exist yet. Create it in the Cloudflare dashboard under AI › AI Gateway.`,
+    })
   }
   if (!(error instanceof UsageLimit)) throw error
   const retryAt = error.retryAt ? Date.parse(error.retryAt) : Number.NaN
-  return problemResponse(request, "TOO_MANY_REQUESTS", "AI is busy. Try again shortly.", {
-    ...(Number.isFinite(retryAt) && {
-      headers: { "retry-after": String(Math.max(1, Math.ceil((retryAt - Date.now()) / 1000))) },
-      extensions: { retryAt: error.retryAt },
-    }),
-  })
+  return errorResponse(
+    { code: "TOO_MANY_REQUESTS", message: "AI is busy. Try again shortly." },
+    Number.isFinite(retryAt)
+      ? { "retry-after": String(Math.max(1, Math.ceil((retryAt - Date.now()) / 1000))) }
+      : undefined
+  )
 }
 
 async function saveAnswer(

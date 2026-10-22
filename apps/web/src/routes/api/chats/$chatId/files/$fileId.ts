@@ -6,7 +6,7 @@ import { z } from "zod"
 import { attachment } from "../../../../../../db/schema"
 import { chatId, isPreviewableImage } from "@/lib/chat"
 import { chatRoute } from "@/server/api.server"
-import { problemResponse } from "@/server/problem"
+import { errorResponse } from "@/server/error-response"
 
 const fileParams = chatId.extend({ fileId: z.uuid() })
 
@@ -14,14 +14,15 @@ const fileParams = chatId.extend({ fileId: z.uuid() })
 export const Route = createFileRoute("/api/chats/$chatId/files/$fileId")({
   server: {
     handlers: {
-      GET: chatRoute(fileParams, async ({ request, params }) => {
+      GET: chatRoute(fileParams, async ({ params }) => {
         const { fileId } = params
         const [row] = await db
           .select()
           .from(attachment)
           .where(and(eq(attachment.id, fileId), eq(attachment.chatId, params.chatId)))
         const object = row ? await storage.get(row.key) : null
-        if (!(row && object)) return problemResponse(request, "NOT_FOUND", "File not found.")
+        if (!(row && object))
+          return errorResponse({ code: "NOT_FOUND", message: "File not found." })
 
         const headers = new Headers()
         object.writeHttpMetadata(headers)

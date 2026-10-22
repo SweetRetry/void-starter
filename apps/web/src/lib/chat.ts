@@ -1,5 +1,6 @@
 import { z } from "zod"
 
+import { validationError } from "./api"
 import { MODELS } from "./models"
 
 /** Limits the composer and the API share. Every message that names one is built from it. */
@@ -16,8 +17,8 @@ const modelId = z.enum(MODELS.map((model) => model.id) as [string, ...string[]],
 
 /**
  * A user turn, as the composer checks it before sending and the API checks it on arrival.
- * Each check carries the sentence the person sees; only a wrong type (a client that isn't
- * the composer) falls back to Zod's own wording, which `sendProblem` replaces.
+ * Each check carries the sentence the person sees; a wrong type (a client that isn't the
+ * composer) gets the one from `sendError`.
  */
 export const sendInput = z
   .object({
@@ -42,18 +43,9 @@ export const sendInput = z
     error: "Write a message or attach a file.",
   })
 
-/** The sentence and status class for a failed `sendInput`. */
-export function sendProblem(error: z.ZodError) {
-  const [issue] = error.issues
-  if (!issue || issue.code === "invalid_type") {
-    return { tooLarge: false, detail: "Send the message as form data." }
-  }
-  const fileSize =
-    issue.path[0] === "files" &&
-    issue.path.length === 2 &&
-    (issue.code === "too_big" || issue.code === "too_small")
-  return { tooLarge: fileSize, detail: issue.message }
-}
+/** A failed `sendInput` as the API's validation error, which the composer shows too. */
+export const sendError = (error: z.ZodError) =>
+  validationError(error, "Send the message as form data.")
 
 export const regenerateInput = z.object({ model: modelId })
 

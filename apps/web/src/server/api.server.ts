@@ -2,7 +2,7 @@ import type { z } from "zod"
 
 import type { chatId } from "@/lib/chat"
 import { chatAccess } from "./chat.server"
-import { problemResponse } from "./problem"
+import { errorResponse } from "./error-response"
 import { currentVisitor } from "./visitor.server"
 
 type ChatContext<Params> = {
@@ -14,8 +14,8 @@ type ChatContext<Params> = {
 
 /**
  * Wrap a `/api/chats/$chatId/*` handler. `params` parses the path; a malformed id answers 404,
- * like someone else's chat. It answers 400 without a visitor cookie, and an unexpected throw
- * still leaves as problem+json carrying the ray id.
+ * like someone else's chat. It answers 401 without a visitor cookie, and an unexpected throw
+ * answers 500 with a `traceId` that the `api.failed` log carries too.
  */
 export function chatRoute<Params extends z.output<typeof chatId>>(
   params: z.ZodType<Params>,
@@ -23,14 +23,18 @@ export function chatRoute<Params extends z.output<typeof chatId>>(
 ) {
   return async ({ request, params: raw }: { request: Request; params: unknown }) => {
     const parsed = params.safeParse(raw)
-    if (!parsed.success) return problemResponse(request, "NOT_FOUND", "Not found.")
+    if (!parsed.success) return errorResponse({ code: "NOT_FOUND", message: "Not found." })
     try {
       const visitor = currentVisitor()
       if (!visitor) {
-        return problemResponse(request, "VALIDATION_ERROR", "Reload the page to start a session.")
+        return errorResponse({
+          code: "UNAUTHORIZED",
+          message: "Reload the page to start a session.",
+        })
       }
       const access = await chatAccess(parsed.data.chatId, visitor)
-      if (access === "other") return problemResponse(request, "NOT_FOUND", "Chat not found.")
+      if (access === "other")
+        return errorResponse({ code: "NOT_FOUND", message: "Chat not found." })
       return await handler({ request, params: parsed.data, visitor, access })
     } catch (error) {
       // An Error serializes to {} in Workers Logs; keep its name, message and stack.
@@ -38,8 +42,14 @@ export function chatRoute<Params extends z.output<typeof chatId>>(
         error instanceof Error
           ? { name: error.name, message: error.message, stack: error.stack }
           : error
-      console.error("api.failed", { path: new URL(request.url).pathname, error: cause })
-      return problemResponse(request, "INTERNAL_SERVER_ERROR", "Something went wrong on our side.")
+      // The edge's ray id when there is one, so Workers Logs finds the request by it.
+      const traceId = request.headers.get("cf-ray") ?? crypto.randomUUID()
+      console.error("api.failed", { traceId, path: new URL(request.url).pathname, error: cause })
+      return errorResponse({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Something went wrong on our side.",
+        traceId,
+      })
     }
   }
 }

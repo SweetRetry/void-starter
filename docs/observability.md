@@ -1,6 +1,6 @@
 # Observability
 
-The Worker's logs and traces are the record of what a request did. The `cf-ray` id ties a user's error report to that record: every `/api/*` error carries it as `instance: "urn:cf-ray:<id>"` ([api.md](api.md)).
+The Worker's logs and traces are the record of what a request did. The `traceId` ties a user's error report to that record: every `/api/*` `500` carries it, and the `api.failed` log holds the same value ([api.md](api.md)). Through Cloudflare's edge it is the request's `cf-ray` id.
 
 ## Logging
 
@@ -35,7 +35,7 @@ where s.parent_id is null and l.level = 'error'
 order by l.ts_ms desc limit 10;
 ```
 
-Local requests have no `cf-ray`, so local errors carry no `instance`. Find them by time or path instead.
+Local requests have no `cf-ray`, so a local `500` carries a random UUID as its `traceId`. Find the `api.failed` log that holds it, or search by time or path.
 
 ## Production
 
@@ -51,6 +51,6 @@ cloudflare: {
 },
 ```
 
-- **Dashboard.** Workers & Pages › your Worker › Observability shows logs and traces. Filter by the ray id from an error's `instance`.
+- **Dashboard.** Workers & Pages › your Worker › Observability shows logs and traces. Filter by the ray id from an error's `traceId`.
 - **Live tail.** `pnpm --filter web exec void project logs` streams logs from the deployed Worker.
 - **AI.** AI Gateway's logs show each model call, with its latency, tokens and cache status.

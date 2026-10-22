@@ -60,15 +60,15 @@ export default defineConfig({
 
 `POST /api/chats/:chatId/answer` 通过 Cloudflare AI Gateway 流式调用 `@cf/*` 模型。推理模型会先流式输出 `reasoning_content` 思考内容再输出正文，Worker 将两者实时转发给前端，并在流结束后一并写入 D1。
 
-### RFC 9457 错误契约
+### 统一错误体
 
-所有 `/api/*` 路由错误均返回 `application/problem+json`，包含供前端判断的 `code` 字段，并在 `instance` 中记录 Cloudflare `cf-ray` 请求 ID。
+所有 `/api/*` 路由错误均返回扁平的 JSON：供前端判断的 `code` 字段和展示给用户的 `message`。校验失败时在 `issues` 中逐字段列出；`500` 错误在 `traceId` 中带上 Cloudflare `cf-ray` 请求 ID。
 
 ## Cloudflare 细节
 
 ### 开发环境连接 AI
 
-D1 和 R2 在本地由 Miniflare 运行；Workers AI 运行在云端，需先执行 `pnpm connect` (`void connect --platform cloudflare`)。未连接时调用模型会返回 `503` Problem 并提示需执行的命令。
+D1 和 R2 在本地由 Miniflare 运行；Workers AI 运行在云端，需先执行 `pnpm connect` (`void connect --platform cloudflare`)。未连接时调用模型会返回 `503` 错误并提示需执行的命令。
 
 ### AI Gateway
 

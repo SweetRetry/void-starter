@@ -14,7 +14,7 @@
 - **AI。** 使用 Workers AI 模型，消耗 Cloudflare 每日免费额度，不需要任何供应商密钥。每次调用都经过 AI Gateway，推理模型会流式输出思考过程。
 - **博客。** `/` 和每篇文章都在构建时预渲染成静态 HTML，有中英两个版本（`/en/*`、`/zh/*`）。
 - **界面。** Tailwind CSS v4、基于 Base UI 的 shadcn/ui、Retry 设计语言（[DESIGN.md](DESIGN.md)），以及来自 [Motif](https://motif.sweetretry.com) 的聊天组件。
-- **错误。** 每个 `/api/*` 路由都返回 RFC 9457 problem+json（[docs/api.md](docs/api.md)）。
+- **错误。** 每个 `/api/*` 错误都返回扁平的 `{ code, message }` JSON（[docs/api.md](docs/api.md)）。
 - **检查。** Vite+（格式化、lint、测试）、类型检查、knip 和项目规则，统一由 `pnpm verify` 执行。`pnpm e2e` 用无头 Chromium 操作应用。
 
 没有账号系统。每个浏览器通过 cookie 拿到一个随机访客 id，侧边栏只列出这个访客的聊天，其他浏览器访问会得到 404。放任何私密内容之前，请先加上认证。
@@ -80,7 +80,7 @@ scripts/             skill 同步和 e2e 运行器
 ## 文档
 
 - [docs/architecture.md](docs/architecture.md) 介绍技术栈和每个选择的理由。
-- [docs/api.md](docs/api.md) 定义错误约定和所有 problem 类型。
+- [docs/api.md](docs/api.md) 定义错误约定和所有错误码。
 - [docs/deployment.md](docs/deployment.md) 介绍 AI Gateway、模型、用量限制和回滚。
 - [docs/observability.md](docs/observability.md) 介绍本地和生产环境的日志与 trace。
 - [AGENTS.md](AGENTS.md) 是编码 agent 的入口。

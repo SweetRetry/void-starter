@@ -14,7 +14,7 @@ A full-stack TypeScript starter that deploys to your own Cloudflare account with
 - **AI.** Workers AI models on Cloudflare's free daily allowance, so no provider key. Every call goes through AI Gateway, and reasoning models stream their thinking.
 - **Blog.** `/` and every post are prerendered to static HTML at build time, in English and Chinese (`/en/*`, `/zh/*`).
 - **UI.** Tailwind CSS v4, shadcn/ui on Base UI, the Retry design language ([DESIGN.md](DESIGN.md)), and the chat block from [Motif](https://motif.sweetretry.com).
-- **Errors.** RFC 9457 problem+json on every `/api/*` route ([docs/api.md](docs/api.md)).
+- **Errors.** One flat `{ code, message }` JSON body on every `/api/*` error ([docs/api.md](docs/api.md)).
 - **Gates.** Vite+ (format, lint, test), typecheck, knip and project rules behind one command, `pnpm verify`. `pnpm e2e` drives the app in headless Chromium.
 
 There are no accounts. A cookie gives each browser a random visitor id, and the sidebar lists that visitor's chats; other browsers get a 404. Add auth before you put anything private in it.
@@ -80,7 +80,7 @@ scripts/             skill sync and the e2e runner
 ## Docs
 
 - [docs/architecture.md](docs/architecture.md) explains the stack and why each choice was made.
-- [docs/api.md](docs/api.md) defines the error contract and every problem type.
+- [docs/api.md](docs/api.md) defines the error contract and every error code.
 - [docs/deployment.md](docs/deployment.md) covers AI Gateway, models, usage limits and rollback.
 - [docs/observability.md](docs/observability.md) covers logs and traces, locally and in production.
 - [AGENTS.md](AGENTS.md) is the entry point for coding agents.

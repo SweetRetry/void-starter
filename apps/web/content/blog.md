@@ -60,15 +60,15 @@ export default defineConfig({
 
 `POST /api/chats/:chatId/answer` streams tokens from `@cf/*` models through AI Gateway. Reasoning models stream `reasoning_content` ahead of the answer text; the Worker forwards both streams to the browser and writes the completed turn to D1.
 
-### RFC 9457 errors
+### One error body
 
-Every `/api/*` error returns `application/problem+json` with a machine-readable `code` field and the Cloudflare `cf-ray` request ID in `instance`.
+Every `/api/*` error returns a flat JSON body: a machine-readable `code` the client branches on and a `message` for the person. Validation failures list each field in `issues`; a `500` carries the Cloudflare `cf-ray` request ID as `traceId`.
 
 ## Cloudflare details
 
 ### Remote AI in dev
 
-D1 and R2 run locally in Miniflare. Workers AI runs on Cloudflare's network and requires `pnpm connect` (`void connect --platform cloudflare`). Before connecting, model calls return a `503` Problem naming the command to run.
+D1 and R2 run locally in Miniflare. Workers AI runs on Cloudflare's network and requires `pnpm connect` (`void connect --platform cloudflare`). Before connecting, model calls return a `503` error naming the command to run.
 
 ### AI Gateway
 

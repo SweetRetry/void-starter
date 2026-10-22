@@ -5,7 +5,7 @@
 ```text
 docs/
   architecture.md   the stack, the decisions behind it, and where code lives
-  api.md            the HTTP error contract and every problem type
+  api.md            the HTTP error contract and every error code
   deployment.md     Cloudflare deploy, secrets, OAuth, AI Gateway, rollback
   observability.md  logs and traces, locally and in production
   guardrails.md     the hooks, lint and scans that check an agent's work, and what to do when one fails
