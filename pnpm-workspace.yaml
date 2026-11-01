@@ -6,6 +6,9 @@ packages:
 # markdownlint-cli2 and shadcn drop micromatch. `esbuild` is pinned at 0.18.20 by
 # drizzle-kit's deprecated @esbuild-kit loader and cannot cross a major through an override.
 overrides:
+  # 1.65.0 and 1.66.0 leave workerd running after prerender, so `vp build` never exits.
+  # Drop this pin once a newer release builds and exits on its own.
+  "@cloudflare/vite-plugin": 1.64.0
   next: ^16.3.8
   katex: ^0.19.0
   markdown-it: ^15.0.3
@@ -27,24 +30,4 @@ minimumReleaseAgeExclude:
   - "@vitest/spy@5.0.5"
   - "@vitest/ui@5.0.5"
   - "@vitest/utils@5.0.5"
-  - "@voidzero-dev/vite-plus-core@1.3.0"
-  - "@voidzero-dev/vite-plus-darwin-arm64@1.3.0"
-  - "@voidzero-dev/vite-plus-darwin-x64@1.3.0"
-  - "@voidzero-dev/vite-plus-linux-arm64-gnu@1.3.0"
-  - "@voidzero-dev/vite-plus-linux-arm64-musl@1.3.0"
-  - "@voidzero-dev/vite-plus-linux-x64-gnu@1.3.0"
-  - "@voidzero-dev/vite-plus-linux-x64-musl@1.3.0"
-  - "@voidzero-dev/vite-plus-win32-arm64-msvc@1.3.0"
-  - "@voidzero-dev/vite-plus-win32-x64-msvc@1.3.0"
-  - framer-motion@14.3.0
-  - motion-dom@14.3.0
-  - motion@14.3.0
-  - vite-plus@1.3.0
   - vitest@5.0.5
-  - cn@0.5.0
-  - "@void/deploy-cloudflare@1.2.1"
-  - "@void/deploy-core@1.2.1"
-  - "@void/edge@1.2.1"
-  - "@void/isr@1.2.1"
-  - "@void/platform@1.2.1"
-  - void@1.2.1

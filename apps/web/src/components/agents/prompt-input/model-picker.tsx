@@ -1,5 +1,5 @@
 import { ChevronDown } from "lucide-react"
-import { useState } from "react"
+import { type ComponentProps, useState } from "react"
 
 import {
   DropdownMenu,
@@ -26,6 +26,20 @@ import type { ModelPickerProps } from "./types"
  * value/defaultValue pair here: a composer that only needs to know which model to call
  * should not have to hold the answer in the page that renders it.
  * --------------------------------------------------------------------------- */
+
+/* The trigger's look is this composer's alone, so it lives here as an app component
+ * rather than as a variant in packages/ui (AGENTS.md › Architecture). Base UI's `render`
+ * merges the trigger's props and ref into it. */
+const ModelTriggerButton = ({ className, ...props }: ComponentProps<"button">) => (
+  <button
+    className={cn(
+      "flex h-10 max-w-52 shrink-0 cursor-pointer items-center gap-2 rounded-lg pr-2 pl-2.5 outline-none transition-colors duration-150 ease-out hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring data-popup-open:bg-accent",
+      className
+    )}
+    type="button"
+    {...props}
+  />
+)
 
 export const ModelPicker = ({
   className,
@@ -55,19 +69,12 @@ export const ModelPicker = ({
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <button
-            aria-label={`Model: ${active.name}`}
-            className={cn(
-              "flex h-10 max-w-52 shrink-0 cursor-pointer items-center gap-2 rounded-lg pr-2 pl-2.5 outline-none transition-colors duration-150 ease-out hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring data-popup-open:bg-accent",
-              className
-            )}
-            type="button"
-          >
+          <ModelTriggerButton aria-label={`Model: ${active.name}`} className={className}>
             <ProviderMark provider={active.provider} />
             {/* The name is the part that changes, so it is the part that truncates. */}
             <span className="truncate text-sm text-muted-foreground">{active.name}</span>
             <ChevronDown className="size-4 shrink-0 text-muted-foreground/60" />
-          </button>
+          </ModelTriggerButton>
         }
       />
 
