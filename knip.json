@@ -9,7 +9,7 @@
     "apps/web": {
       "entry": ["src/routes/**/*.{ts,tsx}", "db/schema.ts", "void.config.ts"],
       "project": ["src/**/*.{ts,tsx,css}", "db/**/*.ts", "*.ts"],
-      "ignoreDependencies": ["cloudflare", "tailwindcss"],
+      "ignoreDependencies": ["tailwindcss"],
       "vite": false
     },
     "packages/ui": {

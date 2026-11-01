@@ -15,6 +15,11 @@ overrides:
   "vitest@4": ^4.1.12 || ^5.0.0
   smol-toml: ^1.9.1
   source-map-js: ^1.2.2
+# `vite` is an alias for @voidzero-dev/vite-plus-core, which versions as 1.x while
+# plugins ask for vite >=5 to ^8. Accept the alias so peer checks stay clean.
+peerDependencyRules:
+  allowedVersions:
+    vite: "1"
 allowBuilds:
   better-sqlite3: false
   esbuild: true
