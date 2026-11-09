@@ -6,9 +6,6 @@ packages:
 # markdownlint-cli2 and shadcn drop micromatch. `esbuild` is pinned at 0.18.20 by
 # drizzle-kit's deprecated @esbuild-kit loader and cannot cross a major through an override.
 overrides:
-  # 1.65.0 and 1.66.0 leave workerd running after prerender, so `vp build` never exits.
-  # Drop this pin once a newer release builds and exits on its own.
-  "@cloudflare/vite-plugin": 1.64.0
   next: ^16.3.8
   katex: ^0.19.0
   markdown-it: ^15.0.3

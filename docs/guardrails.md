@@ -55,7 +55,7 @@ Both are dev-only and never reach the Worker. `minimumReleaseAge` keeps pnpm's o
 Fix the cause the message names. Every scan prints the file, the rule and the replacement.
 
 - Don't silence a check to get green. No `--no-verify`, no new `ignorePatterns`, no `oxlint-disable` comment, no rule turned off. A rule that is wrong for a whole area is a config change to propose, as the component-library override above shows.
-- Copied skills are never edited here. Drift after a `void` upgrade is expected, so run `pnpm skills:update` and commit the copy with the upgrade. A change to sweet-mode goes to [SweetRetry/skills](https://github.com/SweetRetry/skills) first, then `pnpm skills:update` pulls it.
+- Copied skills are never edited here. Drift after a `void` upgrade is expected, so run `pnpm skills:update` and commit the copy with the upgrade. A change to sweet-mode goes to [SweetRetry/retry-kit](https://github.com/SweetRetry/retry-kit/tree/main/skills) first, then `pnpm skills:update` pulls it.
 - A hook skip with `git commit --no-verify` or `LEFTHOOK=0` is for a human who knows why. CI still runs the full gate.
 
 ## What no tool checks

@@ -195,8 +195,13 @@ describe("POST /api/chats/:chatId/messages", () => {
       message: "Something went wrong on our side.",
       traceId: "8f1c2d3b4a5e6f70-SJC",
     })
-    expect(log.mock.calls[0]?.[0]).toBe("api.failed")
-    expect(log.mock.calls[0]?.[1]).toMatchObject({ traceId: "8f1c2d3b4a5e6f70-SJC" })
+    const entry = JSON.parse(String(log.mock.calls[0]?.[0]))
+    expect(entry).toMatchObject({
+      msg: "api.failed",
+      traceId: "8f1c2d3b4a5e6f70-SJC",
+      error: { name: "Error", message: "D1_ERROR: no such table: chat" },
+    })
+    expect(entry.error.stack).toContain("D1_ERROR: no such table: chat")
   })
 })
 

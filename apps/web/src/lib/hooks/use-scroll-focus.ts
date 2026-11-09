@@ -3,6 +3,8 @@ import type { MotionValue } from "motion/react"
 import { useEffect, useRef } from "react"
 import type { RefObject } from "react"
 
+import { frameThrottle } from "@/lib/frame"
+
 /** Where the reading line sits inside the viewport: halfway down. */
 const READING_LINE = 0.5
 
@@ -32,16 +34,8 @@ const useScrollReader = (
       return
     }
 
-    let frame = 0
-    const measure = () => {
-      frame = 0
-      focus.set(readRef.current(container))
-    }
-    const schedule = () => {
-      if (frame === 0) {
-        frame = requestAnimationFrame(measure)
-      }
-    }
+    const measure = () => focus.set(readRef.current(container))
+    const { schedule, cancel } = frameThrottle(measure)
 
     measure()
     container.addEventListener("scroll", schedule, { passive: true })
@@ -60,9 +54,7 @@ const useScrollReader = (
     })
 
     return () => {
-      if (frame !== 0) {
-        cancelAnimationFrame(frame)
-      }
+      cancel()
       container.removeEventListener("scroll", schedule)
       window.removeEventListener("resize", schedule)
       resize.disconnect()

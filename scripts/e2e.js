@@ -134,6 +134,7 @@ if (options.help) {
       "node_modules",
       ".void",
       ".wrangler",
+      ".cloudflare",
       ".tanstack",
       "dist",
       ".turbo",
