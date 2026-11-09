@@ -4,9 +4,11 @@ The Worker's logs and traces are the record of what a request did. The `traceId`
 
 ## Logging
 
-- Log with `console.log`, `console.warn` and `console.error`. Workers Logs captures them and attaches them to the request's trace.
-- Name events with a short dotted key and put the data in an object: `console.error("api.failed", { path, error })`.
-- Log an `Error` as `{ name, message, stack }`. A raw `Error` serializes to `{}`.
+- Log server events with `logger` from `void/log`. Each call writes one JSON line, which Workers Logs captures, indexes by field and attaches to the request's trace.
+- Name events with a short dotted key and put the data in fields: `logger.error("api.failed", { path, error })`. The event name lands in the `msg` field.
+- Pass an `Error` as is. `logger` keeps its `name`, `message`, `stack` and `cause`.
+- `logger.child(fields)` binds fields shared by a group of calls, such as `{ chatId }`.
+- Browser code keeps `console`; its logs never reach Workers Logs.
 - Never log secrets, cookies, session tokens, passwords or full request bodies.
 
 ## Local dev

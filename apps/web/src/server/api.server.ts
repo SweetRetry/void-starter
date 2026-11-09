@@ -1,3 +1,4 @@
+import { logger } from "void/log"
 import type { z } from "zod"
 
 import type { chatId } from "@/lib/chat"
@@ -37,14 +38,9 @@ export function chatRoute<Params extends z.output<typeof chatId>>(
         return errorResponse({ code: "NOT_FOUND", message: "Chat not found." })
       return await handler({ request, params: parsed.data, visitor, access })
     } catch (error) {
-      // An Error serializes to {} in Workers Logs; keep its name, message and stack.
-      const cause =
-        error instanceof Error
-          ? { name: error.name, message: error.message, stack: error.stack }
-          : error
       // The edge's ray id when there is one, so Workers Logs finds the request by it.
       const traceId = request.headers.get("cf-ray") ?? crypto.randomUUID()
-      console.error("api.failed", { traceId, path: new URL(request.url).pathname, error: cause })
+      logger.error("api.failed", { traceId, path: new URL(request.url).pathname, error })
       return errorResponse({
         code: "INTERNAL_SERVER_ERROR",
         message: "Something went wrong on our side.",

@@ -2,6 +2,7 @@ import { waitUntil } from "cloudflare:workers"
 import { ai } from "void/ai"
 import { and, asc, db, desc, eq, gt } from "void/db"
 import { UsageLimit } from "void/limits"
+import { logger } from "void/log"
 import { storage } from "void/storage"
 
 import { attachment, chat, message } from "../../db/schema"
@@ -93,11 +94,7 @@ async function readable(file: File, bytes: ArrayBuffer): Promise<string | null> 
     })
     return result.format === "error" ? null : result.data
   } catch (error) {
-    console.warn("chat.to_markdown_failed", {
-      name: file.name,
-      type: file.type,
-      error: String(error),
-    })
+    logger.warn("chat.to_markdown_failed", { name: file.name, type: file.type, error })
     return null
   }
 }
