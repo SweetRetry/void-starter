@@ -73,7 +73,7 @@ export const ModelPicker = ({
             <ProviderMark provider={active.provider} />
             {/* The name is the part that changes, so it is the part that truncates. */}
             <span className="truncate text-sm text-muted-foreground">{active.name}</span>
-            <ChevronDown className="size-4 shrink-0 text-muted-foreground/60" />
+            <ChevronDown className="size-4 shrink-0 text-subtle-foreground" />
           </ModelTriggerButton>
         }
       />

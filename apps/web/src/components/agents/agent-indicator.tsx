@@ -30,9 +30,9 @@ const ALL = Array.from({ length: CELLS }, () => true)
 /*
  * Tool-call alternates between a cross and four corners:
  *   cross:    corners:
- *   · ■ ·     ■ · ■
- *   ■ ■ ■     · · ·
- *   · ■ ·     ■ · ■
+ *   . # .     # . #
+ *   # # #     . . .
+ *   . # .     # . #
  */
 const TC_CROSS = [false, true, false, true, true, true, false, true, false]
 
