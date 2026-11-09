@@ -1,8 +1,8 @@
 {
   ".agents/skills/sweet-mode": {
-    "repo": "https://github.com/SweetRetry/skills",
-    "path": "web-design/sweet-mode",
-    "commit": "879e51e249f2c3ef02e5a1b7b2b3c04be3599c48",
+    "repo": "https://github.com/SweetRetry/retry-kit",
+    "path": "skills/web-design/sweet-mode",
+    "commit": "4b750407f344128a22d4b28acdc7c619e3ffdd04",
     "hash": "030f7311e814f696265e4747f09804177e7b7c011c845b542f69c74e8ac2c010"
   }
 }

@@ -41,8 +41,8 @@ const SKILLS = [
   { target: ".agents/skills/void", package: "apps/web/node_modules/void/skills/void" },
   {
     target: ".agents/skills/sweet-mode",
-    repo: "https://github.com/SweetRetry/skills",
-    path: "web-design/sweet-mode",
+    repo: "https://github.com/SweetRetry/retry-kit",
+    path: "skills/web-design/sweet-mode",
   },
 ]
 
