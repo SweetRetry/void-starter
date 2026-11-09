@@ -9,18 +9,24 @@ import harnessZh from "../../../content/harness.zh.md?raw"
 export const LANGS = ["en", "zh"] as const
 export type Lang = (typeof LANGS)[number]
 
+/** Who wrote every post, and when. */
+export const AUTHOR = "Retry"
+export const PUBLISHED = "2026-10-16"
+
 /** The words around a post, per language. */
 export const COPY = {
   en: {
     toc: "On this page",
     next: "Read next",
-    byline: (minutes: number) => `Retry · October 16, 2026 · ${minutes} min read`,
+    date: "October 16, 2026",
+    readTime: (minutes: number) => `${minutes} min read`,
     switchTo: { label: "中文", aria: "Switch to Chinese" },
   },
   zh: {
     toc: "目录",
     next: "下一篇",
-    byline: (minutes: number) => `Retry · 2026 年 10 月 16 日 · ${minutes} 分钟阅读`,
+    date: "2026 年 10 月 16 日",
+    readTime: (minutes: number) => `${minutes} 分钟阅读`,
     switchTo: { label: "EN", aria: "Switch to English" },
   },
 } as const satisfies Record<Lang, unknown>

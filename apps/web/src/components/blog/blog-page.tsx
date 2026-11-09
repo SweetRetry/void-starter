@@ -5,7 +5,16 @@ import { Streamdown } from "streamdown"
 import { Toc } from "@/components/blog/toc"
 import { SiteHeader } from "@/components/site-header"
 import { slugify } from "@/lib/toc"
-import { COPY, POST_IDS, postLink, postOf, type Lang, type PostId } from "./posts"
+import {
+  AUTHOR,
+  COPY,
+  POST_IDS,
+  PUBLISHED,
+  postLink,
+  postOf,
+  type Lang,
+  type PostId,
+} from "./posts"
 
 /** The plain text of rendered Markdown children, so a heading's id matches its nav entry. */
 function textOf(children: ReactNode): string {
@@ -74,8 +83,10 @@ export function BlogPage({ lang, post: id }: { lang: Lang; post: PostId }) {
           </div>
         </aside>
         <main className="min-w-0 flex-1 text-lg">
-          <p className="mb-6 text-sm text-muted-foreground tabular-nums">
-            {copy.byline(post.minutes)}
+          <p className="mb-6 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground tabular-nums">
+            <span className="font-medium text-foreground">{AUTHOR}</span>
+            <time dateTime={PUBLISHED}>{copy.date}</time>
+            <span>{copy.readTime(post.minutes)}</span>
           </p>
           {/* Below lg the side column is gone, so the nav folds above the post. */}
           <details className="mb-8 rounded-xl bg-card p-4 lg:hidden">
