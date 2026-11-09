@@ -15,6 +15,8 @@ import type { ComponentProps, ReactNode, RefObject } from "react"
 import { Button } from "@workspace/ui/components/button"
 import { cn } from "@workspace/ui/lib/utils"
 
+import { frameThrottle } from "@/lib/frame"
+
 type ButtonProps = ComponentProps<typeof Button>
 
 /* -- The thread ----------------------------------------------------------------
@@ -126,18 +128,11 @@ export const Conversation = ({ children, className, ...props }: ConversationProp
       return
     }
 
-    let frame = 0
-    const pin = () => {
-      frame = 0
+    const { schedule, cancel } = frameThrottle(() => {
       if (following.current) {
         node.scrollTop = node.scrollHeight
       }
-    }
-    const schedule = () => {
-      if (frame === 0) {
-        frame = requestAnimationFrame(pin)
-      }
-    }
+    })
 
     // Text arrives without a scroll event and a box changes size without a mutation:
     // a webfont swapping in re-wraps every line, an image decodes, Streamdown's styles
@@ -165,9 +160,7 @@ export const Conversation = ({ children, className, ...props }: ConversationProp
     window.addEventListener("resize", schedule)
 
     return () => {
-      if (frame !== 0) {
-        cancelAnimationFrame(frame)
-      }
+      cancel()
       content.disconnect()
       box.disconnect()
       window.removeEventListener("resize", schedule)

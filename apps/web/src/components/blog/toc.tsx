@@ -1,6 +1,7 @@
 import { cn } from "@workspace/ui/lib/utils"
 import { useEffect, useState } from "react"
 
+import { frameThrottle } from "@/lib/frame"
 import type { Heading } from "@/lib/toc"
 
 /** How far below the viewport top a heading counts as the one being read: the header plus air. */
@@ -19,9 +20,7 @@ export function Toc({
   const [current, setCurrent] = useState(headings[0]?.id)
 
   useEffect(() => {
-    let frame = 0
     const update = () => {
-      frame = 0
       let active = headings[0]?.id
       for (const heading of headings) {
         const node = document.getElementById(heading.id)
@@ -29,14 +28,12 @@ export function Toc({
       }
       setCurrent(active)
     }
-    const schedule = () => {
-      if (!frame) frame = requestAnimationFrame(update)
-    }
+    const { schedule, cancel } = frameThrottle(update)
     update()
     window.addEventListener("scroll", schedule, { passive: true })
     window.addEventListener("resize", schedule)
     return () => {
-      cancelAnimationFrame(frame)
+      cancel()
       window.removeEventListener("scroll", schedule)
       window.removeEventListener("resize", schedule)
     }
