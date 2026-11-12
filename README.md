@@ -21,7 +21,7 @@ There are no accounts. A cookie gives each browser a random visitor id, and the 
 
 ## Requirements
 
-- Node.js 24 or newer and pnpm 12 (`corepack enable` picks the version pinned in `package.json`).
+- Node.js 24.22+ (or 26.12+) and pnpm 12 (`corepack enable` picks the version pinned in `package.json`).
 - A Cloudflare account, only to deploy or to get AI answers in dev. The free plan is enough to try it.
 
 ## Quick start

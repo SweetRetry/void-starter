@@ -21,7 +21,7 @@
 
 ## 环境要求
 
-- Node.js 24 或更高版本，以及 pnpm 12（执行 `corepack enable` 会使用 `package.json` 里锁定的版本）。
+- Node.js 24.22+（或 26.12+），以及 pnpm 12（执行 `corepack enable` 会使用 `package.json` 里锁定的版本）。
 - 一个 Cloudflare 账号。只有部署或在开发时获取 AI 回答才需要，免费套餐就够试用。
 
 ## 快速开始

@@ -9,7 +9,7 @@ Use this project-local entry point from any agent. Commands run at the repositor
 
 ## Launch
 
-Requires macOS or Linux, Node 24+ and the workspace's pnpm version. Install workspace dependencies with `pnpm install --frozen-lockfile` if missing. Install Playwright's headless Chromium once per machine. On Linux CI, use `pnpm exec playwright install --with-deps --only-shell chromium` to include system libraries.
+Requires macOS or Linux, Node 24.22+ and the workspace's pnpm version. Install workspace dependencies with `pnpm install --frozen-lockfile` if missing. Install Playwright's headless Chromium once per machine. On Linux CI, use `pnpm exec playwright install --with-deps --only-shell chromium` to include system libraries.
 
 ```sh
 pnpm exec playwright install --only-shell chromium
