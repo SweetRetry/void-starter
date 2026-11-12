@@ -2,7 +2,7 @@ import { defineConfig } from "vite-plus"
 
 /**
  * Unit tests cover pure modules, so they skip voidPlugin. Loaded from the workspace root, the
- * plugin would scaffold `.void/` and `void.json` there.
+ * plugin would scaffold `.void/` and a `void.config.ts` there.
  */
 export default defineConfig({
   resolve: { tsconfigPaths: true },

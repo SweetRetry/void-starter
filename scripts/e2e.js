@@ -2,7 +2,7 @@
 /**
  * Run browser smoke journeys against a disposable copy of the real web app.
  * Usage: pnpm e2e [--screenshots] | pnpm e2e --doctor <url>
- * Requires Node 24, installed workspace dependencies and Playwright Chromium.
+ * Requires Node 24.22+, installed workspace dependencies and Playwright Chromium.
  * Writes .verification/<run>/ evidence; removes only its own temporary workspace.
  * Exit 0 means all requested checks passed; any setup, journey or cleanup failure exits 1.
  */
