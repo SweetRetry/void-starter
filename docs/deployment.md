@@ -38,6 +38,8 @@ Workers AI calls name the gateway on every request (`AI_GATEWAY_ID` in `apps/web
 
 The model picker lists `@cf/*` models from `apps/web/src/lib/models.ts`. They need no provider key: usage counts against the account's Workers AI allowance, measured in neurons. Some models need access the account may not have; `@cf/google/gemma-3-12b-it`, for one, answered `403` ("This account is not allowed to access") on the account this starter was built with. Try a model in dev before you add it.
 
+Workers AI retires `@cf/qwen/qwen3-30b-a3b-fp8` on 20 November 2026. The picker offers `@cf/qwen/qwen3.8-27b` (Qwen3.8 27B) in its place.
+
 ### Usage limits
 
 There are no accounts, so once the `workers.dev` route is on, anyone with the URL can send messages. On the Workers Free plan, Workers AI stops at the daily free allowance and the chat answers `429`. On Workers Paid, usage past the allowance is billed. Set a rate limit on the gateway (AI Gateway › Settings › Rate limiting) before you share the URL widely.
