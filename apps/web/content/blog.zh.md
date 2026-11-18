@@ -93,8 +93,10 @@ await ai.stream(model, { messages, max_tokens: 2048 }, { gateway: { id: "void-st
 | 测试场景                       | 模型          |   耗时 |
 | :----------------------------- | :------------ | -----: |
 | 单句回答                       | Llama 3.3 70B |  5.1 s |
-| 两个附件 + 深度思考            | Qwen3 30B     | 26.3 s |
+| 两个附件 + 深度思考            | Qwen3.8 27B   | 26.3 s |
 | 简短摘要（109 输入 / 42 输出） | Llama 3.3 70B |  1.7 s |
+
+上表 26.3 s 测自 `@cf/qwen/qwen3-30b-a3b-fp8`。Workers AI 于 2026 年 11 月 20 日停用该模型，模型选择器现已改用 `@cf/qwen/qwen3.8-27b`。
 
 ## 快速开始
 

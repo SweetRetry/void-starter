@@ -93,8 +93,10 @@ Measured response times in dev through AI Gateway:
 | Scenario                        | Model         |   Time |
 | :------------------------------ | :------------ | -----: |
 | Single-sentence answer          | Llama 3.3 70B |  5.1 s |
-| Two attachments with reasoning  | Qwen3 30B     | 26.3 s |
+| Two attachments with reasoning  | Qwen3.8 27B   | 26.3 s |
 | Short summary (109 in / 42 out) | Llama 3.3 70B |  1.7 s |
+
+The 26.3 s figure was measured on `@cf/qwen/qwen3-30b-a3b-fp8` before Workers AI retired that model on 20 November 2026. The picker now calls `@cf/qwen/qwen3.8-27b`.
 
 ## Quick start
 
