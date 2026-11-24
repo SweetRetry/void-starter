@@ -11,6 +11,9 @@ export default defineConfig({
   // `preview_urls` stays on because `void deploy` checks each new version's /__void/ready
   // through its preview URL before it shifts traffic. `observability` turns on Workers Logs
   // and Traces.
+  // The app reads its own writes without D1 session bookmarks, so replicas stay off. void 1.11
+  // defaults new databases to off; this also turns them off on a database deployed earlier.
+  database: { readReplication: false },
   cloudflare: {
     name: "void-starter",
     workers_dev: false,
