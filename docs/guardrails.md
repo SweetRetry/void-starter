@@ -43,12 +43,10 @@ Hooks come from `lefthook.yml` and install with `pnpm install`. Pre-commit forma
 
 `pnpm audit` is not part of `pnpm verify`; run it when bumping. Advisories that arrive through a transitive tree are fixed with `overrides` in `pnpm-workspace.yaml`, not by editing a dependency of a dependency. Two stay open on purpose.
 
-- `braces` has no patched release, so it waits for `markdownlint-cli2` and `shadcn` to drop `micromatch`.
+- `minimatch` 10.2.6 comes from `shadcn` through `ts-morph` 26, whose `@ts-morph/common` asks for `^10`. The fix is `11.0.1`, a major an override cannot safely cross, so it waits for `shadcn` to move to a `ts-morph` that uses it.
 - `esbuild` 0.18.20 is pinned by `drizzle-kit`'s deprecated `@esbuild-kit` loader, and an override cannot cross that major. It is reachable only from `void`'s CLI.
 
 Both are dev-only and never reach the Worker. `minimumReleaseAge` keeps pnpm's one-day cooldown; an override that needs a release younger than that is added to `minimumReleaseAgeExclude` with the same version.
-
-`@shadcn/lint` stays on `0.1.x`. `0.2` widened `shadcn/no-restyle` and flags the composer's model picker in `apps/web/src/components/agents/prompt-input/model-picker.tsx`, which styles its own `DropdownMenuTrigger`. Moving that look into a `packages/ui` variant is a design change, so it waits for one.
 
 ## When a check fails
 
